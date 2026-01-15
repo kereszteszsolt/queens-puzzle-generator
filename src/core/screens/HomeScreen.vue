@@ -3,9 +3,7 @@
 </script>
 
 <template>
-<div>
-  <main><router-view></router-view></main>
-</div>
+Home Screen
 </template>
 
 <style scoped>
