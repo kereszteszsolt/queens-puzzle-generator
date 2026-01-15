@@ -2,7 +2,7 @@ import {getShuffledArray} from "./getShuffledArray.ts";
 import {EMPTY, QUEEN} from "../constants";
 import {hasCornerQueen} from "./hasCornerQueen.ts";
 
-export function queensPlacementGenerator(size: number): Int8Array {
+export function generateQueenPlacement(size: number): Int8Array {
     const board = new Int8Array(size * size);
     board.fill(EMPTY);
 
