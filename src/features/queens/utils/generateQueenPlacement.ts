@@ -18,7 +18,7 @@ export function generateQueenPlacement(size: number): Int8Array {
             const idx = row * size + col;
 
             if (usedCols[col] !== 0) continue;
-            if (hasCornerQueen(board, size, row, col)) continue;
+            if (hasCornerQueen(board, size, idx)) continue;
 
             board[idx] = QUEEN;
             usedCols[col] = 1;

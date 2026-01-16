@@ -1,22 +1,17 @@
-export function hasCornerQueen(
-    queens: Int8Array,
-    size: number,
-    r: number,
-    c: number
-): boolean {
-    const s = size;
+import {QUEEN} from "../constants";
 
-    let rr = r - 1, cc = c - 1;
-    if (rr >= 0 && cc >= 0 && queens[rr * s + cc] === -1) return true;
+export function hasCornerQueen(queensBoard: Int8Array, size: number, idx: number): boolean {
+    const r = (idx / size) | 0;
+    const c = idx - r * size;
 
-    rr = r - 1; cc = c + 1;
-    if (rr >= 0 && cc < s && queens[rr * s + cc] === -1) return true;
-
-    rr = r + 1; cc = c - 1;
-    if (rr < s && cc >= 0 && queens[rr * s + cc] === -1) return true;
-
-    rr = r + 1; cc = c + 1;
-    if (rr < s && cc < s && queens[rr * s + cc] === -1) return true;
+    // (r-1,c-1)
+    if (r > 0 && c > 0 && queensBoard[(r - 1) * size + (c - 1)] === QUEEN) return true;
+    // (r-1,c+1)
+    if (r > 0 && c < size - 1 && queensBoard[(r - 1) * size + (c + 1)] === QUEEN) return true;
+    // (r+1,c-1)
+    if (r < size - 1 && c > 0 && queensBoard[(r + 1) * size + (c - 1)] === QUEEN) return true;
+    // (r+1,c+1)
+    if (r < size - 1 && c < size - 1 && queensBoard[(r + 1) * size + (c + 1)] === QUEEN) return true;
 
     return false;
 }
