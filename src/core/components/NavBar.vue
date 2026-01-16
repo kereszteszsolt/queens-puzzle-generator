@@ -233,18 +233,20 @@ watch(
   height: 2px;
   background-color: var(--color-secondary-490);
   transition: transform 0.25s ease, opacity 0.2s ease;
+  transform-origin: center;
 }
 
 .navbar-burger-line-1-open {
-  transform: rotate(45deg) translateY(6px);
+  transform: translateY(6px) rotate(45deg);
 }
 
 .navbar-burger-line-2-open {
   opacity: 0;
+  transform: scaleX(0);
 }
 
 .navbar-burger-line-3-open {
-  transform: rotate(-45deg) translateY(-6px);
+  transform: translateY(-7px) rotate(-45deg);
 }
 
 .navbar-mobile-nav {
