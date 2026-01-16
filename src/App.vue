@@ -14,6 +14,6 @@ import NavBar from "./core/components/NavBar.vue";
 
 <style scoped>
 main {
-  padding: 4rem 1rem 1rem;
+  padding: 5rem 1rem 1rem; /* 4 (navbar) + 1 rem */
 }
 </style>
