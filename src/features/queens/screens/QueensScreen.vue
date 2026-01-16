@@ -4,6 +4,7 @@ import {generateQueenPlacement} from "../utils/generateQueenPlacement.ts";
 import QueenBoard from "../components/QueenBoard.vue";
 import {int8FlatMatrixTo2D} from "../utils/intFlatMatrixTo2D.ts";
 import type {CellState} from "../models/CellState.ts";
+import {generateQueensPuzzle} from "../utils/generateQueensPuzzle.ts";
 
 const x = ref<Int8Array | null>(null);
 const xl = 15;
@@ -13,7 +14,7 @@ const conflicts: Ref<boolean[][]> = ref([]);
 
 onMounted(() => {
   console.log("QueensScreen mounted");
-  x.value = generateQueenPlacement(xl);
+  x.value =  x.value = generateQueensPuzzle(xl, 10);
   queensPuzzle.value = int8FlatMatrixTo2D(x.value, xl)
   conflicts.value = Array.from({length: xl}, () => Array.from({length: xl}, () => false));
   boardState.value = Array.from({length: xl}, () => Array.from({length: xl}, () => ({data: 0, lastModified: 0})));
