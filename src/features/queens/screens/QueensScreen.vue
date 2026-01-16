@@ -7,12 +7,21 @@ import type {CellState} from "../models/CellState.ts";
 import {generateQueensPuzzle} from "../utils/generateQueensPuzzle.ts";
 import QueenControls from "../components/QueenControls.vue";
 import QueenInfo from "../components/QueenInfo.vue";
+import {useGameState} from "../composables/useGameState.ts";
+import {usePointerInteractions} from "../composables/usePointerInteractions.ts";
 
 const x = ref<Int8Array | null>(null);
 const xl = 8;
 const queensPuzzle: Ref<number[][]> = ref([]);
-const boardState: Ref<CellState[][]> = ref([]);
 const conflicts: Ref<boolean[][]> = ref([]);
+
+const {boardState, history, undo, clearBoard, resetBoard, pushHistorySnapshot} = useGameState(xl)
+const {
+  handlePointerDown,
+  handlePointerUp,
+  handlePointerEnter,
+  handleGlobalPointerUp
+} = usePointerInteractions(boardState, queensPuzzle, pushHistorySnapshot);
 
 onMounted(() => {
   console.log("QueensScreen mounted");
@@ -28,18 +37,6 @@ onBeforeUnmount(() => {
   window.removeEventListener('pointerup', handleGlobalPointerUp)
 });
 
-const handleQueenCellPointerDown = (row: number, col: number) => {
-  console.log('Pointer down at', row, col);
-};
-const handleQueenCellPointerUp = (row: number, col: number) => {
-  console.log('Pointer up at', row, col);
-};
-const handleQueenCellPointerEnter = (row: number, col: number) => {
-  console.log('Pointer enter at', row, col);
-}
-const handleGlobalPointerUp = () => {
-  console.log('Global pointer up');
-}
 </script>
 
 <template>
@@ -54,8 +51,8 @@ const handleGlobalPointerUp = () => {
       <queen-controls
           :can-undo="true"
           @new-game="() => {}"
-          @undo="() => {}"
-          @clear-board="() => {}"
+          @undo="undo"
+          @clear-board="clearBoard"
           @reset-game="() => {}"
       />
     </div>
@@ -65,9 +62,9 @@ const handleGlobalPointerUp = () => {
         :board-state="boardState"
         :conflict-cells="conflicts"
         :is-won="false"
-        @queen-cell-pointerdown="handleQueenCellPointerDown"
-        @queen-cell-pointerup="handleQueenCellPointerUp"
-        @queen-cell-pointerenter="handleQueenCellPointerEnter"
+        @queen-cell-pointerdown="handlePointerDown"
+        @queen-cell-pointerup="handlePointerUp"
+        @queen-cell-pointerenter="handlePointerEnter"
     />
   </div>
 </template>
