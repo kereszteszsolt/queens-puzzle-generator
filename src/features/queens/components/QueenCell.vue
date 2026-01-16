@@ -73,6 +73,14 @@ function handlePointerUp(e: PointerEvent) {
 </template>
 
 <style scoped>
+.cell-content{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 21px;
+  color: black;
+  user-select: none;
+}
 .crown {
   font-size: 22px;
   animation: crown-bounce 2s infinite;
