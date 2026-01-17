@@ -6,6 +6,7 @@ export function usePointerInteractions(
     boardState: Ref<CellState[][]>,
     queensChallenge: Ref<number[][]>,
     pushHistorySnapshot: () => void,
+    undo: () => void,
 ) {
     let isPointerDown = false;
     let paintActive = false;
@@ -14,9 +15,6 @@ export function usePointerInteractions(
     let lastTapTime = 0;
     let lastTapCell: [number, number] | null = null;
     const DOUBLE_CLICK_MS = 350;
-    // const QUEEN = 1;
-    // const EMPTY = 0;
-    // const X_MARK = -1;
 
     function startMove() {
         moveInProgress = true;
@@ -69,6 +67,7 @@ export function usePointerInteractions(
         const isDouble = lastTapCell && lastTapCell[0] === r && lastTapCell[1] === c && (now - lastTapTime) <= DOUBLE_CLICK_MS;
 
         if (isDouble) {
+            undo() // revert the last action to avoid false history states (false X placements)
             boardState.value[r]![c]! = {data: QUEEN, lastModified: now};
             autoPlaceXs(r, c, now);
             startMove();

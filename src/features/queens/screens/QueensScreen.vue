@@ -21,7 +21,7 @@ const {
   handlePointerUp,
   handlePointerEnter,
   handleGlobalPointerUp
-} = usePointerInteractions(boardState, queensPuzzle, pushHistorySnapshot);
+} = usePointerInteractions(boardState, queensPuzzle, pushHistorySnapshot, undo);
 
 onMounted(() => {
   console.log("QueensScreen mounted");
