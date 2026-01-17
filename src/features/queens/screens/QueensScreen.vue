@@ -1,4 +1,3 @@
-.queens-game > queen-board,
 <script setup lang="ts">
 import {onBeforeUnmount, onMounted, type Ref, ref} from "vue";
 import QueenBoard from "../components/QueenBoard.vue";
@@ -7,16 +6,19 @@ import QueenControls from "../components/QueenControls.vue";
 import QueenInfo from "../components/QueenInfo.vue";
 import {useGameState} from "../composables/useGameState.ts";
 import {usePointerInteractions} from "../composables/usePointerInteractions.ts";
-import {generateQueensPuzzle} from "../utils/generateQueensPuzzle.ts";
 import type {OptimizeResult} from "../utils/optimizeQueensPuzzle.ts";
 import {useTimer} from "../composables/useTimer.ts";
+import ChooseModal from "../components/ChooseModal.vue";
+import {generateQueensPuzzle} from "../utils/generateQueensPuzzle.ts";
+import Spinner from "../../../core/components/Spinner.vue";
 
 const queensPuzzle: Ref<number[][]> = ref([]);
 const conflicts: Ref<boolean[][]> = ref([]);
 const generationResult: Ref<OptimizeResult | null> = ref(null);
 
-let size = 8;
+const size = ref(8);
 let maxSolutions = 10;
+let isGenerating = ref(false);
 
 const {boardState, history, undo, clearBoard, resetBoard, pushHistorySnapshot} = useGameState(size)
 const {
@@ -25,21 +27,52 @@ const {
   handlePointerEnter,
   handleGlobalPointerUp
 } = usePointerInteractions(boardState, queensPuzzle, pushHistorySnapshot, undo);
-const {timer, formattedTimer, startTimer, stopTimer, resetTimer} = useTimer();
+const {formattedTimer, startTimer, stopTimer, resetTimer} = useTimer();
+const showChooseModal = ref(false);
 
 function handleResetGame() {
   resetBoard();
   resetTimer();
-  startTimer();
 }
 
-onMounted(() => {
-  console.log("QueensScreen mounted");
-  startTimer();
-  generationResult.value = generateQueensPuzzle(size, maxSolutions);
-  queensPuzzle.value = int8FlatMatrixTo2D(generationResult.value.board, size);
-  conflicts.value = Array.from({length: size}, () => Array.from({length: size}, () => false));
+async function newQueensPuzzle(payload: { size: number; maxSolutions: number }): Promise<void> {
+  const { size: newSize, maxSolutions: newMaxSolutions } = payload;
+  showChooseModal.value = false;
 
+  if (isGenerating.value) {
+    // Prevent multiple simultaneous puzzle generations
+    return;
+  }
+
+  stopTimer();
+  resetTimer();
+  isGenerating.value = true;
+  generationResult.value = null;
+
+  // Update the size and maxSolutions
+  size.value = newSize;
+  maxSolutions = newMaxSolutions;
+
+  // Allow the DOM to update so the loading message is visible before heavy work
+  await new Promise(resolve => setTimeout(resolve, 50));
+
+  try {
+    const result = await generateQueensPuzzle(size.value, maxSolutions);
+    generationResult.value = result;
+    queensPuzzle.value = int8FlatMatrixTo2D(result.board, size.value);
+    conflicts.value = Array.from({length: size.value}, () => Array(size.value).fill(false));
+    resetBoard();
+  } catch (error) {
+    console.error("Error generating new puzzle:", error);
+  } finally {
+    isGenerating.value = false;
+    console.debug('solutions',generationResult.value?.solutions,
+        'stopped by', generationResult.value?.stoppedBy);
+    startTimer();
+  }
+}
+
+onMounted(async () => {
   window.addEventListener('pointerup', handleGlobalPointerUp)
 });
 onBeforeUnmount(() => {
@@ -59,21 +92,31 @@ onBeforeUnmount(() => {
       />
       <queen-controls
           :can-undo="history.length > 1"
-          @new-game="() => {}"
+          @new-game="() => {showChooseModal = true}"
           @undo="undo"
           @clear-board="clearBoard"
           @reset-game="handleResetGame"
       />
     </div>
-    <queen-board
-        v-if="queensPuzzle"
-        :queens-puzzle="queensPuzzle"
-        :board-state="boardState"
-        :conflict-cells="conflicts"
-        :is-won="false"
-        @queen-cell-pointerdown="handlePointerDown"
-        @queen-cell-pointerup="handlePointerUp"
-        @queen-cell-pointerenter="handlePointerEnter"
+    <div v-if="queensPuzzle.length > 0">
+      <queen-board
+          v-if="queensPuzzle.length > 4 && !isGenerating"
+          :queens-puzzle="queensPuzzle"
+          :board-state="boardState"
+          :conflict-cells="conflicts"
+          :is-won="false"
+          @queen-cell-pointerdown="handlePointerDown"
+          @queen-cell-pointerup="handlePointerUp"
+          @queen-cell-pointerenter="handlePointerEnter"
+      />
+      <spinner v-else class="spinner"/>
+    </div>
+    <div v-else>Click "New Game" to start a puzzle.</div>
+
+    <choose-modal
+        :show="showChooseModal"
+        @choose="newQueensPuzzle"
+        @close="() => showChooseModal = false"
     />
   </div>
 </template>

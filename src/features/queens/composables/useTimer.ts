@@ -20,7 +20,6 @@ export function useTimer() {
     }
 
     const resetTimer = () => {
-        stopTimer()
         timer.value = 0
     }
 
