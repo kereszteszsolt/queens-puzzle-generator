@@ -25,10 +25,16 @@ const {
   handleGlobalPointerUp
 } = usePointerInteractions(boardState, queensPuzzle, pushHistorySnapshot, undo);
 
+
+function handleResetGame() {
+  resetBoard();
+  //resetTimer(); TODO: implement timer
+}
+
 onMounted(() => {
   console.log("QueensScreen mounted");
-  const generationResult = generateQueensPuzzle(size, maxSolutions);
-  queensPuzzle.value = int8FlatMatrixTo2D(generationResult.board, size);
+  generationResult.value = generateQueensPuzzle(size, maxSolutions);
+  queensPuzzle.value = int8FlatMatrixTo2D(generationResult.value.board, size);
   conflicts.value = Array.from({length: size}, () => Array.from({length: size}, () => false));
 
   window.addEventListener('pointerup', handleGlobalPointerUp)
@@ -53,7 +59,7 @@ onBeforeUnmount(() => {
           @new-game="() => {}"
           @undo="undo"
           @clear-board="clearBoard"
-          @reset-game="() => {}"
+          @reset-game="handleResetGame"
       />
     </div>
     <queen-board
