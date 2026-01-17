@@ -25,7 +25,7 @@ const selectedSize = ref<number>(-2);
       <span class="btn-icon">↶</span>
       <span class="btn-text">Undo</span>
     </button>
-    <button class="btn-erase" @click="$emit('clearBoard')">
+    <button class="btn-clear" @click="$emit('clearBoard')" :disabled="!canUndo">
       <span class="btn-icon">🧹</span>
       <span class="btn-text">Clear Board</span>
     </button>
@@ -108,13 +108,19 @@ const selectedSize = ref<number>(-2);
 }
 
 /* Erase should be a soft/lighter coral; make base a bit darker (was hover), hover steps darker */
-.btn-erase {
+.btn-clear {
   background: var(--color-primary-300);
   color: var(--color-secondary-900);
 }
 
-.btn-erase:hover {
+.btn-clear:hover {
   background: var(--color-primary-400);
+}
+
+/* Add a compact, advanced visual treatment for disabled Clear button: apply a subtle desaturation + brightness tweak */
+.btn-clear:disabled {
+  background: var(--color-primary-200);
+  cursor: not-allowed;
 }
 
 /* Reset stays as the error action (strong red) using --color-error */

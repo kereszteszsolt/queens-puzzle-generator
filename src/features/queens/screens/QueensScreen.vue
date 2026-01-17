@@ -3,19 +3,21 @@
 import {onBeforeUnmount, onMounted, type Ref, ref} from "vue";
 import QueenBoard from "../components/QueenBoard.vue";
 import {int8FlatMatrixTo2D} from "../utils/intFlatMatrixTo2D.ts";
-import type {CellState} from "../models/CellState.ts";
-import {generateQueensPuzzle} from "../utils/generateQueensPuzzle.ts";
 import QueenControls from "../components/QueenControls.vue";
 import QueenInfo from "../components/QueenInfo.vue";
 import {useGameState} from "../composables/useGameState.ts";
 import {usePointerInteractions} from "../composables/usePointerInteractions.ts";
+import {generateQueensPuzzle} from "../utils/generateQueensPuzzle.ts";
+import type {OptimizeResult} from "../utils/optimizeQueensPuzzle.ts";
 
-const x = ref<Int8Array | null>(null);
-const xl = 8;
 const queensPuzzle: Ref<number[][]> = ref([]);
 const conflicts: Ref<boolean[][]> = ref([]);
+const generationResult: Ref<OptimizeResult | null> = ref(null);
 
-const {boardState, history, undo, clearBoard, resetBoard, pushHistorySnapshot} = useGameState(xl)
+let size = 8;
+let maxSolutions = 10;
+
+const {boardState, history, undo, clearBoard, resetBoard, pushHistorySnapshot} = useGameState(size)
 const {
   handlePointerDown,
   handlePointerUp,
@@ -25,11 +27,9 @@ const {
 
 onMounted(() => {
   console.log("QueensScreen mounted");
-  x.value = generateQueensPuzzle(xl, 1);
-  queensPuzzle.value = int8FlatMatrixTo2D(x.value, xl)
-  conflicts.value = Array.from({length: xl}, () => Array.from({length: xl}, () => false));
-  boardState.value = Array.from({length: xl}, () => Array.from({length: xl}, () => ({data: 0, lastModified: 0})));
-  console.log(x.value);
+  const generationResult = generateQueensPuzzle(size, maxSolutions);
+  queensPuzzle.value = int8FlatMatrixTo2D(generationResult.board, size);
+  conflicts.value = Array.from({length: size}, () => Array.from({length: size}, () => false));
 
   window.addEventListener('pointerup', handleGlobalPointerUp)
 });
@@ -43,13 +43,13 @@ onBeforeUnmount(() => {
   <div class="queens-game">
     <div class="queens-game-header">
       <queen-info
-          :total-possible-solutions="1234"
-          :board-size="10"
+          :total-possible-solutions="generationResult && generationResult.solutions || 0"
+          :board-size="generationResult && generationResult.board.length || 0"
           :generating-message="'message'"
           :formatted-timer="'00:00'"
       />
       <queen-controls
-          :can-undo="true"
+          :can-undo="history.length > 1"
           @new-game="() => {}"
           @undo="undo"
           @clear-board="clearBoard"
@@ -57,7 +57,7 @@ onBeforeUnmount(() => {
       />
     </div>
     <queen-board
-        v-if="x"
+        v-if="queensPuzzle"
         :queens-puzzle="queensPuzzle"
         :board-state="boardState"
         :conflict-cells="conflicts"
