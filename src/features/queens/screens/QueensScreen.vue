@@ -9,6 +9,7 @@ import {useGameState} from "../composables/useGameState.ts";
 import {usePointerInteractions} from "../composables/usePointerInteractions.ts";
 import {generateQueensPuzzle} from "../utils/generateQueensPuzzle.ts";
 import type {OptimizeResult} from "../utils/optimizeQueensPuzzle.ts";
+import {useTimer} from "../composables/useTimer.ts";
 
 const queensPuzzle: Ref<number[][]> = ref([]);
 const conflicts: Ref<boolean[][]> = ref([]);
@@ -24,15 +25,17 @@ const {
   handlePointerEnter,
   handleGlobalPointerUp
 } = usePointerInteractions(boardState, queensPuzzle, pushHistorySnapshot, undo);
-
+const {timer, formattedTimer, startTimer, stopTimer, resetTimer} = useTimer();
 
 function handleResetGame() {
   resetBoard();
-  //resetTimer(); TODO: implement timer
+  resetTimer();
+  startTimer();
 }
 
 onMounted(() => {
   console.log("QueensScreen mounted");
+  startTimer();
   generationResult.value = generateQueensPuzzle(size, maxSolutions);
   queensPuzzle.value = int8FlatMatrixTo2D(generationResult.value.board, size);
   conflicts.value = Array.from({length: size}, () => Array.from({length: size}, () => false));
@@ -50,9 +53,9 @@ onBeforeUnmount(() => {
     <div class="queens-game-header">
       <queen-info
           :total-possible-solutions="generationResult && generationResult.solutions || 0"
-          :board-size="generationResult && generationResult.board.length || 0"
+          :board-size="size"
           :generating-message="'message'"
-          :formatted-timer="'00:00'"
+          :formatted-timer="formattedTimer"
       />
       <queen-controls
           :can-undo="history.length > 1"
