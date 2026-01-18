@@ -19,6 +19,7 @@ const generationResult: Ref<OptimizeResult | null> = ref(null);
 const size = ref(8);
 let maxSolutions = 10;
 let isGenerating = ref(false);
+let messages = ref<string>('');
 
 const {boardState, history, undo, clearBoard, resetBoard, pushHistorySnapshot} = useGameState(size)
 const {
@@ -33,6 +34,10 @@ const showChooseModal = ref(false);
 function handleResetGame() {
   resetBoard();
   resetTimer();
+}
+
+function setMsg(message: string) {
+  messages.value = message;
 }
 
 async function newQueensPuzzle(payload: { size: number; maxSolutions: number }): Promise<void> {
@@ -57,7 +62,7 @@ async function newQueensPuzzle(payload: { size: number; maxSolutions: number }):
   await new Promise(resolve => setTimeout(resolve, 50));
 
   try {
-    const result = await generateQueensPuzzle(size.value, maxSolutions);
+    const result = await generateQueensPuzzle(size.value, maxSolutions, setMsg);
     generationResult.value = result;
     queensPuzzle.value = int8FlatMatrixTo2D(result.board, size.value);
     conflicts.value = Array.from({length: size.value}, () => Array(size.value).fill(false));
@@ -66,8 +71,9 @@ async function newQueensPuzzle(payload: { size: number; maxSolutions: number }):
     console.error("Error generating new puzzle:", error);
   } finally {
     isGenerating.value = false;
-    console.debug('solutions',generationResult.value?.solutions,
-        'stopped by', generationResult.value?.stoppedBy);
+    // console.debug('solutions',generationResult.value?.solutions,
+    // 'stopped by', generationResult.value?.stoppedBy);
+    setMsg('Board generated. Good luck!');
     startTimer();
   }
 }
@@ -87,7 +93,7 @@ onBeforeUnmount(() => {
       <queen-info
           :total-possible-solutions="generationResult && generationResult.solutions || 0"
           :board-size="size"
-          :generating-message="'message'"
+          :generating-message="messages"
           :formatted-timer="formattedTimer"
       />
       <queen-controls

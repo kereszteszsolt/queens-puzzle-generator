@@ -17,13 +17,14 @@ export interface OptimizeResult {
     stoppedBy: "targetReached" | "timeLimit" | "iterationLimit";
 }
 
-export function optimizeQueensPuzzle(
+export async function optimizeQueensPuzzle(
     board: Int8Array,
     queens: Int8Array,
     size: number,
     targetMaxSolutions: number,
+    cb: (data: string) => void,
     options: OptimizeOptions = {}
-): OptimizeResult {
+): Promise<OptimizeResult> {
     const timeLimitMs = options.timeLimitMs ?? 180_000;
     const iterationLimit = options.iterationLimit ?? 2_000_000;
     const start = Date.now();
@@ -46,7 +47,7 @@ export function optimizeQueensPuzzle(
     }
 
     // initial solutions
-    let bestSolutions = countQueensSolutions(board, size);
+    let bestSolutions = countQueensSolutions(board, size, 500000); //TODO refactor magic number
     let bestBoard = board.slice();
 
     // target already met
@@ -57,7 +58,13 @@ export function optimizeQueensPuzzle(
     let iterations = 0;
 
     while (iterations < iterationLimit && (Date.now() - start) < timeLimitMs) {
+        cb(`${iterations} iterations, best solutions: ${bestSolutions}, time elapsed: ${(Date.now() - start) / 1000} s`);
         iterations++;
+
+        // Yield to event loop periodically to allow UI updates
+        if (iterations % 100 === 0) {
+            await new Promise(resolve => setTimeout(resolve, 0));
+        }
 
         // random cell
         const idx = (Math.random() * (size * size)) | 0;
