@@ -46,6 +46,7 @@ export async function optimizeQueensPuzzle(
         throw new Error("optimizeQueensPuzzle: initial board has invalid color regions.");
     }
 
+    //
     // initial solutions
     let bestSolutions = countQueensSolutions(board, size);
     let bestBoard = board.slice();
@@ -55,7 +56,20 @@ export async function optimizeQueensPuzzle(
         return {board: bestBoard, solutions: bestSolutions, iterations: 0, stoppedBy: "targetReached"};
     }
 
-    let allCells = Array.from({ length: size*size }, (_, i) => i);
+    function getColorCellId(idx: number, color: number, bSize: number): number {
+        let maxColor = bSize; //  colors are time equal to board size
+        console.log('maxC: ', maxColor)
+        console.log('color: ', color)
+        if (color < 1 || color > maxColor) {
+            throw new Error(`getColorCellId: color out of range: ${color}`);
+        }
+        if (idx < 0 || idx >= bSize * bSize) {
+            throw new Error(`getColorCellId: idx out of range: ${idx}`);
+        }
+        return idx * (maxColor + 1) + color;
+    }
+    let notVisitedCells = Array.from({ length: size*size }, (_, i) => i);
+    let triedCells = new Set<number>();
     let iterations = 0;
 
     while (iterations < iterationLimit && (Date.now() - start) < timeLimitMs) {
@@ -68,15 +82,20 @@ export async function optimizeQueensPuzzle(
         }
 
         // random cell
-        const r_id = (Math.random() * (allCells.length)) | 0;
-        const idx = allCells[r_id]!;
-        allCells.slice(r_id, 1);
+        const r_id = (Math.random() * (notVisitedCells.length)) | 0;
+        const idx = notVisitedCells[r_id]!;
+        notVisitedCells.slice(r_id, 1);
         const baseColor = board[idx];
 
         // TRBL neighbors with different color
         const neighbors = getTRBLNeighborIndices(idx, size);
         const nIdx = pickRandomNeighborIndex(neighbors, (cand) => board[cand] !== baseColor);
         if (nIdx === -1) continue;
+
+        if (triedCells.has(getColorCellId(nIdx, baseColor!, size))) {
+            continue;
+        }
+        triedCells.add(getColorCellId(nIdx, baseColor!, size));
 
         const {validChange, newSolutions} = tryRecolor(board, size, queenIdx, nIdx, baseColor!, bestSolutions, targetMaxSolutions)
         if (validChange) {
@@ -87,7 +106,8 @@ export async function optimizeQueensPuzzle(
                     return {board: bestBoard, solutions: bestSolutions, iterations, stoppedBy: "targetReached"};
                 }
             }
-            allCells = Array.from({ length: size*size }, (_, i) => i); // reset cells
+            notVisitedCells = Array.from({ length: size*size }, (_, i) => i); // reset cells
+            triedCells.clear()
         }
     }
 
