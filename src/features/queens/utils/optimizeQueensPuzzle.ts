@@ -1,9 +1,9 @@
-import { countQueensSolutions } from "./countQueensSolutions";
-import { validateColorRegions } from "./validateColorRegions";
-import { areFixedQueensValidForColors } from "./areFixedQueensValidForColors";
-import { extractQueenIndices } from "./extractQueenIndices";
-import { getTRBLNeighborIndices } from "./getTRBLNeighboursIndices";
-import { pickRandomNeighborIndex } from "./pickRandomNeighborIndex";
+import {countQueensSolutions} from "./countQueensSolutions";
+import {validateColorRegions} from "./validateColorRegions";
+import {areFixedQueensValidForColors} from "./areFixedQueensValidForColors";
+import {extractQueenIndices} from "./extractQueenIndices";
+import {getTRBLNeighborIndices} from "./getTRBLNeighboursIndices";
+import {pickRandomNeighborIndex} from "./pickRandomNeighborIndex";
 
 export interface OptimizeOptions {
     timeLimitMs?: number;      // default: 180_000
@@ -47,12 +47,12 @@ export async function optimizeQueensPuzzle(
     }
 
     // initial solutions
-    let bestSolutions = countQueensSolutions(board, size, 500000); //TODO refactor magic number
-    let bestBoard: Int8Array = board.slice();
+    let bestSolutions = countQueensSolutions(board, size);
+    let bestBoard = board.slice();
 
     // target already met
     if (bestSolutions > 0 && bestSolutions <= targetMaxSolutions) {
-        return { board: bestBoard, solutions: bestSolutions, iterations: 0, stoppedBy: "targetReached" };
+        return {board: bestBoard, solutions: bestSolutions, iterations: 0, stoppedBy: "targetReached"};
     }
 
     let iterations = 0;
@@ -75,33 +75,14 @@ export async function optimizeQueensPuzzle(
         const nIdx = pickRandomNeighborIndex(neighbors, (cand) => board[cand] !== baseColor);
         if (nIdx === -1) continue;
 
-        const neighborColor = board[nIdx];
-
-        // randomize try order, to avoid bias
-        const firstGrow = Math.random() < 0.5;
-
-        if (firstGrow) {
-            let result = tryImproveSolution(board, size, queenIdx, nIdx, baseColor!, bestSolutions, targetMaxSolutions);
-            if (!result.updated) {
-                result = tryImproveSolution(board, size, queenIdx, idx, neighborColor!, bestSolutions, targetMaxSolutions);
-            }
-            if (result.updated) {
-                bestSolutions = result.bestSolutions;
-                bestBoard = result.bestBoard;
+        const tryResult = tryRecolor(board, size, queenIdx, nIdx, baseColor!, bestSolutions, targetMaxSolutions)
+        if (tryResult.valid) {
+            const newSolutions = countQueensSolutions(board, size, bestSolutions);
+            if (newSolutions > 0 && newSolutions < bestSolutions) {
+                bestSolutions = newSolutions;
+                bestBoard = board.slice();
                 if (bestSolutions <= targetMaxSolutions) {
-                    return { board: bestBoard, solutions: bestSolutions, iterations, stoppedBy: "targetReached" };
-                }
-            }
-        } else {
-            let result = tryImproveSolution(board, size, queenIdx, idx, neighborColor!, bestSolutions, targetMaxSolutions);
-            if (!result.updated) {
-                result = tryImproveSolution(board, size, queenIdx, nIdx, baseColor!, bestSolutions, targetMaxSolutions);
-            }
-            if (result.updated) {
-                bestSolutions = result.bestSolutions;
-                bestBoard = result.bestBoard;
-                if (bestSolutions <= targetMaxSolutions) {
-                    return { board: bestBoard, solutions: bestSolutions, iterations, stoppedBy: "targetReached" };
+                    return {board: bestBoard, solutions: bestSolutions, iterations, stoppedBy: "targetReached"};
                 }
             }
         }
@@ -110,7 +91,7 @@ export async function optimizeQueensPuzzle(
     const stoppedBy: OptimizeResult["stoppedBy"] =
         iterations >= iterationLimit ? "iterationLimit" : "timeLimit";
 
-    return { board: bestBoard, solutions: bestSolutions, iterations, stoppedBy };
+    return {board: bestBoard, solutions: bestSolutions, iterations, stoppedBy};
 }
 
 function tryRecolor(
@@ -121,58 +102,33 @@ function tryRecolor(
     newColor: number,
     currentBestSolutions: number,
     targetMaxSolutions: number
-): boolean {
+): { valid: boolean, newSolutions?: number } {
     const oldColor = board[cellIdx];
-    if (oldColor === newColor) return false;
+    if (oldColor === newColor) return {valid: false};
 
     board[cellIdx] = newColor;
 
     // 1) validate initial queens
     if (!areFixedQueensValidForColors(board, queenIdx, size)) {
         board[cellIdx] = oldColor!;
-        return false;
+        return {valid: false};
     }
 
     // 2) validate color regions
     if (!validateColorRegions(board, size)) {
         board[cellIdx] = oldColor!;
-        return false;
+        return {valid: false};
     }
 
     // 3) validate solutions count
-    const earlyLimit = Math.min(currentBestSolutions, targetMaxSolutions + 1);
+    const earlyLimit = Math.max(currentBestSolutions, targetMaxSolutions) - 1;
     const solutions = countQueensSolutions(board, size, earlyLimit);
+    console.log('earlyLimit in tryRecolor', earlyLimit);
+    console.log('count in tryRecolor', solutions);
     if (solutions === 0 || solutions >= currentBestSolutions) {
         board[cellIdx] = oldColor!;
-        return false;
+        return {valid: false};
     }
 
-    return true;
-}
-
-function tryImproveSolution(
-    board: Int8Array,
-    size: number,
-    queenIdx: Int32Array,
-    cellIdx: number,
-    color: number,
-    bestSolutions: number,
-    targetMaxSolutions: number
-): { updated: boolean; bestSolutions: number; bestBoard: Int8Array } {
-    if (tryRecolor(board, size, queenIdx, cellIdx, color, bestSolutions, targetMaxSolutions)) {
-        const newSolutions = countQueensSolutions(board, size, bestSolutions); // early exit ha >= bestSolutions
-        if (newSolutions > 0 && newSolutions < bestSolutions) {
-            const newBoard = board.slice();
-            return {
-                updated: true,
-                bestSolutions: newSolutions,
-                bestBoard: newBoard,
-            };
-        }
-    }
-    return {
-        updated: false,
-        bestSolutions,
-        bestBoard: board,
-    };
+    return {valid: true, newSolutions: solutions};
 }
