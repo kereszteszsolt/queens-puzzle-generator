@@ -48,7 +48,7 @@ export async function optimizeQueensPuzzle(
 
     // initial solutions
     let bestSolutions = countQueensSolutions(board, size, 500000); //TODO refactor magic number
-    let bestBoard = board.slice();
+    let bestBoard: Int8Array = board.slice();
 
     // target already met
     if (bestSolutions > 0 && bestSolutions <= targetMaxSolutions) {
@@ -81,43 +81,27 @@ export async function optimizeQueensPuzzle(
         const firstGrow = Math.random() < 0.5;
 
         if (firstGrow) {
-            if (tryRecolor(board, size, queenIdx, nIdx, baseColor!, bestSolutions, targetMaxSolutions)) {
-                const newSolutions = countQueensSolutions(board, size, bestSolutions); // early exit ha >= bestSolutions
-                if (newSolutions > 0 && newSolutions < bestSolutions) {
-                    bestSolutions = newSolutions;
-                    bestBoard = board.slice();
-                    if (bestSolutions <= targetMaxSolutions) {
-                        return { board: bestBoard, solutions: bestSolutions, iterations, stoppedBy: "targetReached" };
-                    }
-                }
-            } else if (tryRecolor(board, size, queenIdx, idx, neighborColor!, bestSolutions, targetMaxSolutions)) {
-                const newSolutions = countQueensSolutions(board, size, bestSolutions);
-                if (newSolutions > 0 && newSolutions < bestSolutions) {
-                    bestSolutions = newSolutions;
-                    bestBoard = board.slice();
-                    if (bestSolutions <= targetMaxSolutions) {
-                        return { board: bestBoard, solutions: bestSolutions, iterations, stoppedBy: "targetReached" };
-                    }
+            let result = tryImproveSolution(board, size, queenIdx, nIdx, baseColor!, bestSolutions, targetMaxSolutions);
+            if (!result.updated) {
+                result = tryImproveSolution(board, size, queenIdx, idx, neighborColor!, bestSolutions, targetMaxSolutions);
+            }
+            if (result.updated) {
+                bestSolutions = result.bestSolutions;
+                bestBoard = result.bestBoard;
+                if (bestSolutions <= targetMaxSolutions) {
+                    return { board: bestBoard, solutions: bestSolutions, iterations, stoppedBy: "targetReached" };
                 }
             }
         } else {
-            if (tryRecolor(board, size, queenIdx, idx, neighborColor!, bestSolutions, targetMaxSolutions)) {
-                const newSolutions = countQueensSolutions(board, size, bestSolutions);
-                if (newSolutions > 0 && newSolutions < bestSolutions) {
-                    bestSolutions = newSolutions;
-                    bestBoard = board.slice();
-                    if (bestSolutions <= targetMaxSolutions) {
-                        return { board: bestBoard, solutions: bestSolutions, iterations, stoppedBy: "targetReached" };
-                    }
-                }
-            } else if (tryRecolor(board, size, queenIdx, nIdx, baseColor!, bestSolutions, targetMaxSolutions)) {
-                const newSolutions = countQueensSolutions(board, size, bestSolutions);
-                if (newSolutions > 0 && newSolutions < bestSolutions) {
-                    bestSolutions = newSolutions;
-                    bestBoard = board.slice();
-                    if (bestSolutions <= targetMaxSolutions) {
-                        return { board: bestBoard, solutions: bestSolutions, iterations, stoppedBy: "targetReached" };
-                    }
+            let result = tryImproveSolution(board, size, queenIdx, idx, neighborColor!, bestSolutions, targetMaxSolutions);
+            if (!result.updated) {
+                result = tryImproveSolution(board, size, queenIdx, nIdx, baseColor!, bestSolutions, targetMaxSolutions);
+            }
+            if (result.updated) {
+                bestSolutions = result.bestSolutions;
+                bestBoard = result.bestBoard;
+                if (bestSolutions <= targetMaxSolutions) {
+                    return { board: bestBoard, solutions: bestSolutions, iterations, stoppedBy: "targetReached" };
                 }
             }
         }
@@ -164,4 +148,31 @@ function tryRecolor(
     }
 
     return true;
+}
+
+function tryImproveSolution(
+    board: Int8Array,
+    size: number,
+    queenIdx: Int32Array,
+    cellIdx: number,
+    color: number,
+    bestSolutions: number,
+    targetMaxSolutions: number
+): { updated: boolean; bestSolutions: number; bestBoard: Int8Array } {
+    if (tryRecolor(board, size, queenIdx, cellIdx, color, bestSolutions, targetMaxSolutions)) {
+        const newSolutions = countQueensSolutions(board, size, bestSolutions); // early exit ha >= bestSolutions
+        if (newSolutions > 0 && newSolutions < bestSolutions) {
+            const newBoard = board.slice();
+            return {
+                updated: true,
+                bestSolutions: newSolutions,
+                bestBoard: newBoard,
+            };
+        }
+    }
+    return {
+        updated: false,
+        bestSolutions,
+        bestBoard: board,
+    };
 }
