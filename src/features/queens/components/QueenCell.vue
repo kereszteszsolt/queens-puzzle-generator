@@ -43,7 +43,7 @@ const cellStyle = computed(() => {
   }
   return base;
 });
-const showWinCrown = computed(() => props.isWon && props.value === 1);
+const showWinCrown = computed(() => props.isWon && props.value === QUEEN);
 
 function handlePointerDown(e: PointerEvent) {
   emit('queen-cell-pointerdown', props.row, props.col);

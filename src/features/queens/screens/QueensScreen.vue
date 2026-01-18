@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {onBeforeUnmount, onMounted, type Ref, ref} from "vue";
+import {onBeforeUnmount, onMounted, type Ref, ref, watch} from "vue";
 import QueenBoard from "../components/QueenBoard.vue";
 import {int8FlatMatrixTo2D} from "../utils/intFlatMatrixTo2D.ts";
 import QueenControls from "../components/QueenControls.vue";
@@ -11,6 +11,8 @@ import {useTimer} from "../composables/useTimer.ts";
 import ChooseModal from "../components/ChooseModal.vue";
 import {generateQueensPuzzle} from "../utils/generateQueensPuzzle.ts";
 import Spinner from "../../../core/components/Spinner.vue";
+import {useWin} from "../composables/useWin.ts";
+import WinModal from "../components/WinModal.vue";
 
 const queensPuzzle: Ref<number[][]> = ref([]);
 const conflicts: Ref<boolean[][]> = ref([]);
@@ -28,8 +30,11 @@ const {
   handlePointerEnter,
   handleGlobalPointerUp
 } = usePointerInteractions(boardState, queensPuzzle, pushHistorySnapshot, undo);
-const {formattedTimer, startTimer, stopTimer, resetTimer} = useTimer();
+const {timer, formattedTimer, startTimer, stopTimer, resetTimer} = useTimer();
+const { win } = useWin(boardState, queensPuzzle);
+
 const showChooseModal = ref(false);
+const showWinModal = ref(false);
 
 function handleResetGame() {
   resetBoard();
@@ -78,6 +83,31 @@ async function newQueensPuzzle(payload: { size: number; maxSolutions: number }):
   }
 }
 
+// timeout id for delayed modal show (so we can clear it)
+let winModalTimeout: number | undefined;
+
+// When win becomes true: stop timer and show modal (after 0.5s delay)
+watch(win, (val) => {
+  // clear any existing timeout to avoid multiple triggers
+  if (winModalTimeout !== undefined) {
+    clearTimeout(winModalTimeout);
+    winModalTimeout = undefined;
+  }
+
+  if (val) {
+    stopTimer();
+    setMsg('You won!');
+    // add 1500s delay before showing the modal to allow UI transitions to settle
+    winModalTimeout = window.setTimeout(() => {
+      showWinModal.value = true;
+      winModalTimeout = undefined;
+    }, 1500);
+  } else {
+    // If somehow win becomes false, hide modal immediately
+    showWinModal.value = false;
+  }
+});
+
 onMounted(async () => {
   window.addEventListener('pointerup', handleGlobalPointerUp)
 });
@@ -110,7 +140,7 @@ onBeforeUnmount(() => {
           :queens-puzzle="queensPuzzle"
           :board-state="boardState"
           :conflict-cells="conflicts"
-          :is-won="false"
+          :is-won="win"
           @queen-cell-pointerdown="handlePointerDown"
           @queen-cell-pointerup="handlePointerUp"
           @queen-cell-pointerenter="handlePointerEnter"
@@ -124,6 +154,14 @@ onBeforeUnmount(() => {
         @choose="newQueensPuzzle"
         @close="() => showChooseModal = false"
     />
+    <win-modal
+        :show="showWinModal"
+        :winning-time="timer"
+        @close="showWinModal = false"
+        @replay="resetBoard"
+        @new-game="() => { showWinModal = false; showChooseModal = true }"
+    />
+
   </div>
 </template>
 
