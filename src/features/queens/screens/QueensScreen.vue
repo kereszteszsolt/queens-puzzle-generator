@@ -136,7 +136,7 @@ onBeforeUnmount(() => {
     </div>
     <div v-if="queensPuzzle.length > 0">
       <queen-board
-          v-if="queensPuzzle.length > 4 && !isGenerating"
+          v-if="queensPuzzle.length > 3 && !isGenerating"
           :queens-puzzle="queensPuzzle"
           :board-state="boardState"
           :conflict-cells="conflicts"

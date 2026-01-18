@@ -146,7 +146,7 @@ function tryRecolor(
     }
 
     // 3) validate solutions count
-    const earlyLimit = Math.max(currentBestSolutions, targetMaxSolutions) - 1;
+    const earlyLimit = Math.max(currentBestSolutions, targetMaxSolutions);
     const solutions = countQueensSolutions(board, size, earlyLimit);
     console.log('earlyLimit in tryRecolor', earlyLimit);
     console.log('count in tryRecolor', solutions);
