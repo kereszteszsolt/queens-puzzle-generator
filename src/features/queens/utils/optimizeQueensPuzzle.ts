@@ -4,6 +4,7 @@ import {areFixedQueensValidForColors} from "./areFixedQueensValidForColors";
 import {extractQueenIndices} from "./extractQueenIndices";
 import {getTRBLNeighborIndices} from "./getTRBLNeighboursIndices";
 import {pickRandomNeighborIndex} from "./pickRandomNeighborIndex";
+import {fillBoardWithColors} from "./fillBoardWithColors.ts";
 
 export interface OptimizeOptions {
     timeLimitMs?: number;      // default: 180_000
@@ -47,8 +48,21 @@ export async function optimizeQueensPuzzle(
     }
 
     //
+    let refillAttempts = 0;
+    let bestSolutions = 0;
+    let OPTIMAL_SOLUTION_LIMIT = 150;
+    let current_solutions = countQueensSolutions(board, size, OPTIMAL_SOLUTION_LIMIT);
+    while (current_solutions > OPTIMAL_SOLUTION_LIMIT) {
+        cb(`Refilling board to reduce initial solutions (attempt ${refillAttempts + 1})...`);
+        refillAttempts++;
+        board.fill(0);
+        board = fillBoardWithColors(queens, size);
+        current_solutions = countQueensSolutions(board, size, Math.min(current_solutions, OPTIMAL_SOLUTION_LIMIT));
+    }
+    bestSolutions = current_solutions;
+
     // initial solutions
-    let bestSolutions = countQueensSolutions(board, size);
+    //let bestSolutions = countQueensSolutions(board, size);
     let bestBoard = board.slice();
 
     // target already met
@@ -56,18 +70,6 @@ export async function optimizeQueensPuzzle(
         return {board: bestBoard, solutions: bestSolutions, iterations: 0, stoppedBy: "targetReached"};
     }
 
-    function getColorCellId(idx: number, color: number, bSize: number): number {
-        let maxColor = bSize; //  colors are time equal to board size
-        console.log('maxC: ', maxColor)
-        console.log('color: ', color)
-        if (color < 1 || color > maxColor) {
-            throw new Error(`getColorCellId: color out of range: ${color}`);
-        }
-        if (idx < 0 || idx >= bSize * bSize) {
-            throw new Error(`getColorCellId: idx out of range: ${idx}`);
-        }
-        return idx * (maxColor + 1) + color;
-    }
     let notVisitedCells = Array.from({ length: size*size }, (_, i) => i);
     let triedCells = new Set<number>();
     let iterations = 0;
@@ -154,4 +156,17 @@ function tryRecolor(
     }
 
     return {validChange: true, newSolutions: solutions};
+}
+
+function getColorCellId(idx: number, color: number, bSize: number): number {
+    let maxColor = bSize; //  colors are time equal to board size
+    console.log('maxC: ', maxColor)
+    console.log('color: ', color)
+    if (color < 1 || color > maxColor) {
+        throw new Error(`getColorCellId: color out of range: ${color}`);
+    }
+    if (idx < 0 || idx >= bSize * bSize) {
+        throw new Error(`getColorCellId: idx out of range: ${idx}`);
+    }
+    return idx * (maxColor + 1) + color;
 }

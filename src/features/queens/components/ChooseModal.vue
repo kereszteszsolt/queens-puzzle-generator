@@ -35,9 +35,9 @@ defineEmits<{
       </div>
 
       <div class="group">
-        <h3 class="group-title">No limit ♾️</h3>
+        <h3 class="group-title">Up to 50 solutions</h3>
         <div class="size-grid">
-          <button v-for="s in [4,5,6,7,8,9,10,11,12,13,14,15]" :key="'nolimit-'+s" :class="['size-btn', {selected: false}]" @click="$emit('choose', { size: s, maxSolutions: Number.POSITIVE_INFINITY })">
+          <button v-for="s in [4,5,6,7,8,9,10,11,12,13,14,15]" :key="'nolimit-'+s" :class="['size-btn', {selected: false}]" @click="$emit('choose', { size: s, maxSolutions: 50 })">
             {{ s }}
           </button>
         </div>
