@@ -55,6 +55,7 @@ export async function optimizeQueensPuzzle(
         return {board: bestBoard, solutions: bestSolutions, iterations: 0, stoppedBy: "targetReached"};
     }
 
+    let allCells = Array.from({ length: size*size }, (_, i) => i);
     let iterations = 0;
 
     while (iterations < iterationLimit && (Date.now() - start) < timeLimitMs) {
@@ -62,12 +63,14 @@ export async function optimizeQueensPuzzle(
         iterations++;
 
         // Yield to event loop periodically to allow UI updates
-        if (iterations % 100 === 0) {
+        if (iterations % 10 === 0) {
             await new Promise(resolve => setTimeout(resolve, 0));
         }
 
         // random cell
-        const idx = (Math.random() * (size * size)) | 0;
+        const r_id = (Math.random() * (allCells.length)) | 0;
+        const idx = allCells[r_id]!;
+        allCells.slice(r_id, 1);
         const baseColor = board[idx];
 
         // TRBL neighbors with different color
@@ -75,16 +78,16 @@ export async function optimizeQueensPuzzle(
         const nIdx = pickRandomNeighborIndex(neighbors, (cand) => board[cand] !== baseColor);
         if (nIdx === -1) continue;
 
-        const tryResult = tryRecolor(board, size, queenIdx, nIdx, baseColor!, bestSolutions, targetMaxSolutions)
-        if (tryResult.valid) {
-            const newSolutions = countQueensSolutions(board, size, bestSolutions);
-            if (newSolutions > 0 && newSolutions < bestSolutions) {
-                bestSolutions = newSolutions;
+        const {validChange, newSolutions} = tryRecolor(board, size, queenIdx, nIdx, baseColor!, bestSolutions, targetMaxSolutions)
+        if (validChange) {
+            if (newSolutions! > 0 && newSolutions! < bestSolutions) {
+                bestSolutions = newSolutions!;
                 bestBoard = board.slice();
                 if (bestSolutions <= targetMaxSolutions) {
                     return {board: bestBoard, solutions: bestSolutions, iterations, stoppedBy: "targetReached"};
                 }
             }
+            allCells = Array.from({ length: size*size }, (_, i) => i); // reset cells
         }
     }
 
@@ -102,22 +105,22 @@ function tryRecolor(
     newColor: number,
     currentBestSolutions: number,
     targetMaxSolutions: number
-): { valid: boolean, newSolutions?: number } {
+): { validChange: boolean, newSolutions?: number } {
     const oldColor = board[cellIdx];
-    if (oldColor === newColor) return {valid: false};
+    if (oldColor === newColor) return {validChange: false};
 
     board[cellIdx] = newColor;
 
     // 1) validate initial queens
     if (!areFixedQueensValidForColors(board, queenIdx, size)) {
         board[cellIdx] = oldColor!;
-        return {valid: false};
+        return {validChange: false};
     }
 
     // 2) validate color regions
     if (!validateColorRegions(board, size)) {
         board[cellIdx] = oldColor!;
-        return {valid: false};
+        return {validChange: false};
     }
 
     // 3) validate solutions count
@@ -127,8 +130,8 @@ function tryRecolor(
     console.log('count in tryRecolor', solutions);
     if (solutions === 0 || solutions >= currentBestSolutions) {
         board[cellIdx] = oldColor!;
-        return {valid: false};
+        return {validChange: false};
     }
 
-    return {valid: true, newSolutions: solutions};
+    return {validChange: true, newSolutions: solutions};
 }
