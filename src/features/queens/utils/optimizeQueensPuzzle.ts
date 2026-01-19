@@ -1,14 +1,13 @@
-import {countQueensSolutions} from "./countQueensSolutions";
-import {validateColorRegions} from "./validateColorRegions";
-import {areFixedQueensValidForColors} from "./areFixedQueensValidForColors";
-import {extractQueenIndices} from "./extractQueenIndices";
-import {getTRBLNeighborIndices} from "./getTRBLNeighboursIndices";
-import {pickRandomNeighborIndex} from "./pickRandomNeighborIndex";
-import {fillBoardWithColors} from "./fillBoardWithColors.ts";
+import {extractQueenIndices} from "./extractQueenIndices.ts";
+import {areFixedQueensValidForColors} from "./areFixedQueensValidForColors.ts";
+import {validateColorRegions} from "./validateColorRegions.ts";
+import {countQueensSolutions} from "./countQueensSolutions.ts";
+import {getShuffledArray} from "./getShuffledArray.ts";
+import {getTRBLNeighborIndices} from "./getTRBLNeighboursIndices.ts";
 
 export interface OptimizeOptions {
-    timeLimitMs?: number;      // default: 180_000
-    iterationLimit?: number;   // default: 2_000_000
+    timeLimitMs?: number      // default: 180_000 (3 minutes)
+    iterationLimit?: number;  // default: 2_000_000
 }
 
 export interface OptimizeResult {
@@ -16,6 +15,11 @@ export interface OptimizeResult {
     solutions: number;
     iterations: number;
     stoppedBy: "targetReached" | "timeLimit" | "iterationLimit";
+}
+
+export interface BoardSnapshot {
+    board: Int8Array;
+    solutions: number;
 }
 
 export async function optimizeQueensPuzzle(
@@ -26,9 +30,7 @@ export async function optimizeQueensPuzzle(
     cb: (data: string) => void,
     options: OptimizeOptions = {}
 ): Promise<OptimizeResult> {
-    const timeLimitMs = options.timeLimitMs ?? 180_000;
-    const iterationLimit = options.iterationLimit ?? 2_000_000;
-    const start = Date.now();
+    const startTime = Date.now();
 
     if (board.length !== size * size) {
         throw new Error(`optimizeQueensPuzzle: board length mismatch.`);
@@ -39,7 +41,6 @@ export async function optimizeQueensPuzzle(
 
     const queenIdx = extractQueenIndices(queens);
 
-    // Validate initial board
     if (!areFixedQueensValidForColors(board, queenIdx, size)) {
         throw new Error("optimizeQueensPuzzle: initial board does not allow the fixed queens (duplicate/missing colors).");
     }
@@ -47,35 +48,20 @@ export async function optimizeQueensPuzzle(
         throw new Error("optimizeQueensPuzzle: initial board has invalid color regions.");
     }
 
-    //
-    let refillAttempts = 0;
-    let bestSolutions = 0;
-    let OPTIMAL_SOLUTION_LIMIT = 150;
-    let current_solutions = countQueensSolutions(board, size, OPTIMAL_SOLUTION_LIMIT);
-    while (current_solutions > OPTIMAL_SOLUTION_LIMIT) {
-        cb(`Refilling board to reduce initial solutions (attempt ${refillAttempts + 1})...`);
-        refillAttempts++;
-        board.fill(0);
-        board = fillBoardWithColors(queens, size);
-        current_solutions = countQueensSolutions(board, size, Math.min(current_solutions, OPTIMAL_SOLUTION_LIMIT));
-    }
-    bestSolutions = current_solutions;
+    let solution = countQueensSolutions(board, size);
 
-    // initial solutions
-    //let bestSolutions = countQueensSolutions(board, size);
-    let bestBoard = board.slice();
+    const timeLimit = options.timeLimitMs ?? 180_000; // 3 minutes
+    const iterationLimit = options.iterationLimit ?? 2_000_000;
 
-    // target already met
-    if (bestSolutions > 0 && bestSolutions <= targetMaxSolutions) {
-        return {board: bestBoard, solutions: bestSolutions, iterations: 0, stoppedBy: "targetReached"};
-    }
-
-    let notVisitedCells = Array.from({ length: size*size }, (_, i) => i);
-    let triedCells = new Set<number>();
     let iterations = 0;
 
-    while (iterations < iterationLimit && (Date.now() - start) < timeLimitMs) {
-        cb(`${iterations} iterations, best solutions: ${bestSolutions}, time elapsed: ${(Date.now() - start) / 1000} s`);
+    let history: BoardSnapshot[] = [];
+    let cellsToChooseFrom: Int16Array = getShuffledArray(0, size * size);
+    let cellIndex = 0;
+    let failedAttempts = 0;
+
+    while (solution > targetMaxSolutions && iterations < iterationLimit  && (Date.now() - startTime) < timeLimit) {
+        cb(`Iteration ${iterations}: Current solution count: ${solution} Time elapsed: ${Date.now() - startTime}ms`);
         iterations++;
 
         // Yield to event loop periodically to allow UI updates
@@ -83,40 +69,67 @@ export async function optimizeQueensPuzzle(
             await new Promise(resolve => setTimeout(resolve, 0));
         }
 
-        // random cell
-        const r_id = (Math.random() * (notVisitedCells.length)) | 0;
-        const idx = notVisitedCells[r_id]!;
-        notVisitedCells.slice(r_id, 1);
-        const baseColor = board[idx];
+        if (cellIndex > cellsToChooseFrom.length) {
+            cellsToChooseFrom = getShuffledArray(0, size * size);
+            cellIndex = 0;
+        }
 
-        // TRBL neighbors with different color
-        const neighbors = getTRBLNeighborIndices(idx, size);
-        const nIdx = pickRandomNeighborIndex(neighbors, (cand) => board[cand] !== baseColor);
-        if (nIdx === -1) continue;
+        const idx = cellsToChooseFrom[cellIndex++]!;
+        const neighbors: number[] = getTRBLNeighborIndices(idx, size*size);
 
-        if (triedCells.has(getColorCellId(nIdx, baseColor!, size))) {
+        if  (neighbors.length === 0) {
             continue;
         }
-        triedCells.add(getColorCellId(nIdx, baseColor!, size));
 
-        const {validChange, newSolutions} = tryRecolor(board, size, queenIdx, nIdx, baseColor!, bestSolutions, targetMaxSolutions)
-        if (validChange) {
-            if (newSolutions! > 0 && newSolutions! < bestSolutions) {
-                bestSolutions = newSolutions!;
-                bestBoard = board.slice();
-                if (bestSolutions <= targetMaxSolutions) {
-                    return {board: bestBoard, solutions: bestSolutions, iterations, stoppedBy: "targetReached"};
+        let neighborIdx = neighbors[Math.floor(Math.random() * neighbors.length)]!;
+        let currentCellColor = board[idx]!;
+        let currentNeighborColor = board[neighborIdx]!;
+
+        if (currentCellColor === currentNeighborColor) {
+            continue;
+        }
+
+        let result = tryRecolor(board, size, queenIdx, idx, currentNeighborColor, solution);
+        if (!result.validChange) {
+            result = tryRecolor(board, size, queenIdx, neighborIdx, currentCellColor, solution);
+        }
+        if (result.validChange) {
+            // update if improved
+            if (result.newSolutions! < solution) {
+                solution =   result.newSolutions!;
+                // record history
+                history.push({
+                    board: board.slice(),
+                    solutions: solution
+                });
+
+                cb(`Iteration ${iterations}: New best solution count: ${solution}`);
+
+                if (solution <= targetMaxSolutions) {
+                    cb(`Target solution count ${targetMaxSolutions} reached at iteration ${iterations}.`);
+                    return { board, solutions: solution, iterations, stoppedBy: "targetReached"  };
                 }
+                continue;
             }
-            notVisitedCells = Array.from({ length: size*size }, (_, i) => i); // reset cells
-            triedCells.clear()
+        }
+        failedAttempts++;
+        if (failedAttempts >= size * size) {
+            failedAttempts = 0;
+            // revert to a previous state
+            if (history.length > 0) {
+                const snapshot = history[history.length - 1]!;
+                board = snapshot.board.slice();
+                solution = snapshot.solutions
+                history.pop()
+                cb(`Iteration ${iterations}: Reverted to previous state with solution count: ${solution}`);
+            }
         }
     }
 
     const stoppedBy: OptimizeResult["stoppedBy"] =
         iterations >= iterationLimit ? "iterationLimit" : "timeLimit";
 
-    return {board: bestBoard, solutions: bestSolutions, iterations, stoppedBy};
+    return {board: board, solutions: solution, iterations, stoppedBy};
 }
 
 function tryRecolor(
@@ -125,8 +138,7 @@ function tryRecolor(
     queenIdx: Int32Array,
     cellIdx: number,
     newColor: number,
-    currentBestSolutions: number,
-    targetMaxSolutions: number
+    solution: number,
 ): { validChange: boolean, newSolutions?: number } {
     const oldColor = board[cellIdx];
     if (oldColor === newColor) return {validChange: false};
@@ -146,27 +158,11 @@ function tryRecolor(
     }
 
     // 3) validate solutions count
-    const earlyLimit = Math.max(currentBestSolutions, targetMaxSolutions);
-    const solutions = countQueensSolutions(board, size, earlyLimit);
-    console.log('earlyLimit in tryRecolor', earlyLimit);
-    console.log('count in tryRecolor', solutions);
-    if (solutions === 0 || solutions >= currentBestSolutions) {
+    const newSolution = countQueensSolutions(board, size, solution);
+    if (newSolution === 0 || newSolution >= solution) {
         board[cellIdx] = oldColor!;
         return {validChange: false};
     }
 
-    return {validChange: true, newSolutions: solutions};
-}
-
-function getColorCellId(idx: number, color: number, bSize: number): number {
-    let maxColor = bSize; //  colors are time equal to board size
-    console.log('maxC: ', maxColor)
-    console.log('color: ', color)
-    if (color < 1 || color > maxColor) {
-        throw new Error(`getColorCellId: color out of range: ${color}`);
-    }
-    if (idx < 0 || idx >= bSize * bSize) {
-        throw new Error(`getColorCellId: idx out of range: ${idx}`);
-    }
-    return idx * (maxColor + 1) + color;
+    return {validChange: true, newSolutions: newSolution};
 }
