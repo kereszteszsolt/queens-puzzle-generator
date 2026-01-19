@@ -101,6 +101,9 @@ export function usePointerInteractions(
             paintActive = false;
             eraseActive = false;
             autoRemoveXs(queenTimestamp, now);
+            // reset last tap to avoid confusion - user just removed a queen
+            lastTapCell = null;
+            lastTapTime =0;
         }
     }
 
