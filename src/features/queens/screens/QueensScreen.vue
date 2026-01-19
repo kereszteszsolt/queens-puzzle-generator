@@ -13,9 +13,9 @@ import {generateQueensPuzzle} from "../utils/generateQueensPuzzle.ts";
 import Spinner from "../../../core/components/Spinner.vue";
 import {useWin} from "../composables/useWin.ts";
 import WinModal from "../components/WinModal.vue";
+import {useConflicts} from "../composables/useConflicts.ts";
 
 const queensPuzzle: Ref<number[][]> = ref([]);
-const conflicts: Ref<boolean[][]> = ref([]);
 const generationResult: Ref<OptimizeResult | null> = ref(null);
 
 const size = ref(8);
@@ -32,6 +32,7 @@ const {
 } = usePointerInteractions(boardState, queensPuzzle, pushHistorySnapshot, undo);
 const {timer, formattedTimer, startTimer, stopTimer, resetTimer} = useTimer();
 const { win } = useWin(boardState, queensPuzzle);
+const { conflicts } = useConflicts(boardState, queensPuzzle);
 
 const showChooseModal = ref(false);
 const showWinModal = ref(false);
@@ -70,7 +71,6 @@ async function newQueensPuzzle(payload: { size: number; maxSolutions: number }):
     const result = await generateQueensPuzzle(size.value, maxSolutions, setMsg);
     generationResult.value = result;
     queensPuzzle.value = int8FlatMatrixTo2D(result.board, size.value);
-    conflicts.value = Array.from({length: size.value}, () => Array(size.value).fill(false));
     resetBoard();
   } catch (error) {
     console.error("Error generating new puzzle:", error);
