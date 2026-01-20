@@ -13,6 +13,7 @@ defineEmits<{
   (e: 'clearBoard'): void;
   (e: 'newGame', size?: number): void;
   (e: 'startGame'): void;
+  (e: 'replay'): void;
 }>();
 
 const selectedSize = ref<number>(-2);
@@ -25,6 +26,12 @@ const selectedSize = ref<number>(-2);
         class="btn-generate" @click="$emit('newGame', selectedSize)">
       <span class="btn-icon">🎲</span>
       <span class="btn-text">New Game</span>
+    </button>
+    <button
+        v-if="gameStatus === GameStatuses.WON"
+        class="btn-replay" @click="$emit('replay')">
+      <span class="btn-icon">🔄</span>
+      <span class="btn-text">Replay</span>
     </button>
     <button
         v-if="gameStatus === GameStatuses.BOARD_GENERATED"
@@ -106,36 +113,48 @@ const selectedSize = ref<number>(-2);
 .btn-generate {
   background: linear-gradient(180deg, #32b432 0%, #228b22 100%);
   color: var(--color-neutral);
-  box-shadow: 0 4px 12px rgba(34, 139, 34, 0.3);
+  box-shadow: 0 4px 12px rgba(20, 60, 20, 0.35);
 }
 
 .btn-generate:hover {
   background: linear-gradient(180deg, #28a428 0%, #1f7e1f 100%);
-  box-shadow: 0 6px 16px rgba(34, 139, 34, 0.4);
+  box-shadow: 0 6px 16px rgba(20, 60, 20, 0.45);
 }
 
 /* Start Game - Coral/Orange (primary palette) */
 .btn-start {
   background: linear-gradient(180deg, #ffab70 0%, #ff7f50 100%);
   color: #3d1a0a;
-  box-shadow: 0 4px 12px rgba(255, 127, 80, 0.3);
+  box-shadow: 0 4px 12px rgba(80, 40, 20, 0.35);
 }
 
 .btn-start:hover {
   background: linear-gradient(180deg, #ff9a5c 0%, #e67345 100%);
-  box-shadow: 0 6px 16px rgba(255, 127, 80, 0.4);
+  box-shadow: 0 6px 16px rgba(80, 40, 20, 0.45);
+}
+
+/* Replay - Yellow/Gold (from WinModal) */
+.btn-replay {
+  background: linear-gradient(180deg, #ffcc66 0%, #ffb24d 100%);
+  color: #3d2a0a;
+  box-shadow: 0 4px 12px rgba(80, 60, 20, 0.35);
+}
+
+.btn-replay:hover {
+  background: linear-gradient(180deg, #ffc24d 0%, #ffa033 100%);
+  box-shadow: 0 6px 16px rgba(80, 60, 20, 0.45);
 }
 
 /* Undo - Blue (tertiary palette) */
 .btn-undo {
   background: linear-gradient(180deg, #70d0ff 0%, #00bfff 100%);
   color: #0a2a3d;
-  box-shadow: 0 4px 12px rgba(0, 191, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(20, 50, 80, 0.35);
 }
 
 .btn-undo:hover {
   background: linear-gradient(180deg, #5cc8ff 0%, #00a6e6 100%);
-  box-shadow: 0 6px 16px rgba(0, 191, 255, 0.4);
+  box-shadow: 0 6px 16px rgba(20, 50, 80, 0.45);
 }
 
 .btn-undo:disabled {
@@ -150,12 +169,12 @@ const selectedSize = ref<number>(-2);
 .btn-clear {
   background: linear-gradient(180deg, #ffccc1 0%, #ffab99 100%);
   color: #4a1a0a;
-  box-shadow: 0 4px 12px rgba(255, 171, 153, 0.3);
+  box-shadow: 0 4px 12px rgba(80, 40, 40, 0.35);
 }
 
 .btn-clear:hover {
   background: linear-gradient(180deg, #ffbcad 0%, #ff9a85 100%);
-  box-shadow: 0 6px 16px rgba(255, 171, 153, 0.4);
+  box-shadow: 0 6px 16px rgba(80, 40, 40, 0.45);
 }
 
 .btn-clear:disabled {
@@ -170,12 +189,12 @@ const selectedSize = ref<number>(-2);
 .btn-reset {
   background: linear-gradient(180deg, #d42020 0%, #ac1010 100%);
   color: white;
-  box-shadow: 0 4px 12px rgba(172, 16, 16, 0.3);
+  box-shadow: 0 4px 12px rgba(60, 20, 20, 0.35);
 }
 
 .btn-reset:hover {
   background: linear-gradient(180deg, #c01818 0%, #960e0e 100%);
-  box-shadow: 0 6px 16px rgba(172, 16, 16, 0.4);
+  box-shadow: 0 6px 16px rgba(60, 20, 20, 0.45);
 }
 
 /* Ensure disabled buttons generally look subdued */

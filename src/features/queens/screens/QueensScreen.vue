@@ -248,6 +248,7 @@ onBeforeUnmount(() => {
           @clear-board="clearBoard"
           @reset-game="handleResetGame"
           @start-game="handleStartGame"
+          @replay="handleResetGame"
       />
     </div>
 
