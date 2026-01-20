@@ -1,18 +1,24 @@
 <script setup lang="ts">
 
-const props = defineProps({
+import {GameStatuses} from "../models/GameStatus.ts";
+
+defineProps({
   totalPossibleSolutions: Number,
   boardSize: Number,
-  generatingMessage: String,
   formattedTimer: String,
+  generatingMessage: String,
+  gameStatus: String,
 });
 </script>
 
 <template>
-  <div class="board-info">
-    <div><strong>Board:</strong> {{boardSize}}x{{boardSize}} ({{ totalPossibleSolutions }})</div>
+  <div v-if="gameStatus === GameStatuses.PLAYING" class="board-info">
+    <div><strong>Board:</strong> {{boardSize}}x{{boardSize}}</div>
+    <div><strong>Possible solutions:</strong> {{ totalPossibleSolutions }}</div>
     <div><strong>Timer:</strong> {{ formattedTimer }}</div>
-    <div><strong>Status:</strong> {{ generatingMessage }}</div>
+  </div>
+  <div v-else class="board-info board-info-message">
+    <div v-html="generatingMessage"></div>
   </div>
 </template>
 
@@ -28,5 +34,8 @@ const props = defineProps({
   text-align: center;
   justify-content: space-between;
   width: 100%;
+}
+.board-info-message {
+  justify-content: space-around;
 }
 </style>

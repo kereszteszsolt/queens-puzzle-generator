@@ -14,6 +14,8 @@ import Spinner from "../../../core/components/Spinner.vue";
 import {useWin} from "../composables/useWin.ts";
 import WinModal from "../components/WinModal.vue";
 import {useConflicts} from "../composables/useConflicts.ts";
+import {type GameStatus, GameStatuses} from "../models/GameStatus.ts";
+import GenerationInfo from "../components/GenerationInfo.vue";
 
 const queensPuzzle: Ref<number[][]> = ref([]);
 const generationResult: Ref<OptimizeResult | null> = ref(null);
@@ -21,7 +23,9 @@ const generationResult: Ref<OptimizeResult | null> = ref(null);
 const size = ref(8);
 let maxSolutions = 10;
 let isGenerating = ref(false);
-let messages = ref<string>('');
+let generatingMessages = ref<string>('');
+let statusMessages = ref<string>('');
+let gameStatus: Ref<GameStatus> = ref(GameStatuses.WELCOME);
 
 const {boardState, history, undo, clearBoard, resetBoard, pushHistorySnapshot} = useGameState(size)
 const {
@@ -31,8 +35,8 @@ const {
   handleGlobalPointerUp
 } = usePointerInteractions(boardState, queensPuzzle, pushHistorySnapshot, undo);
 const {timer, formattedTimer, startTimer, stopTimer, resetTimer} = useTimer();
-const { win } = useWin(boardState, queensPuzzle);
-const { conflicts } = useConflicts(boardState, queensPuzzle);
+const {win} = useWin(boardState, queensPuzzle);
+const {conflicts} = useConflicts(boardState, queensPuzzle);
 
 const showChooseModal = ref(false);
 const showWinModal = ref(false);
@@ -40,14 +44,38 @@ const showWinModal = ref(false);
 function handleResetGame() {
   resetBoard();
   resetTimer();
+  startTimer();
 }
 
-function setMsg(message: string) {
-  messages.value = message;
+function handleStartGame() {
+  gameStatus.value = GameStatuses.PLAYING;
+  startTimer();
+}
+
+function handleNewGame() {
+  if (gameStatus.value === GameStatuses.PLAYING) {
+    stopTimer();
+  }
+  showChooseModal.value = true;
+}
+
+function handleCancelNewGame() {
+  showChooseModal.value = false;
+  if (gameStatus.value === GameStatuses.PLAYING) {
+    startTimer();
+  }
+}
+
+function setGeneratingMsg(message: string) {
+  generatingMessages.value = message;
+}
+
+function setStatusMsg(message: string) {
+  statusMessages.value = message;
 }
 
 async function newQueensPuzzle(payload: { size: number; maxSolutions: number }): Promise<void> {
-  const { size: newSize, maxSolutions: newMaxSolutions } = payload;
+  const {size: newSize, maxSolutions: newMaxSolutions} = payload;
   showChooseModal.value = false;
 
   if (isGenerating.value) {
@@ -58,6 +86,7 @@ async function newQueensPuzzle(payload: { size: number; maxSolutions: number }):
   stopTimer();
   resetTimer();
   isGenerating.value = true;
+  gameStatus.value = GameStatuses.GENERATING;
   generationResult.value = null;
 
   // Update the size and maxSolutions
@@ -68,20 +97,45 @@ async function newQueensPuzzle(payload: { size: number; maxSolutions: number }):
   await new Promise(resolve => setTimeout(resolve, 50));
 
   try {
-    const result = await generateQueensPuzzle(size.value, maxSolutions, setMsg);
+    const result = await generateQueensPuzzle(size.value, maxSolutions, setGeneratingMsg);
     generationResult.value = result;
     queensPuzzle.value = int8FlatMatrixTo2D(result.board, size.value);
     resetBoard();
   } catch (error) {
     console.error("Error generating new puzzle:", error);
+    gameStatus.value = GameStatuses.GENERATING_ERROR;
+    setGeneratingMsg('Error generating puzzle. Please try again.');
   } finally {
     isGenerating.value = false;
-    // console.debug('solutions',generationResult.value?.solutions,
-    // 'stopped by', generationResult.value?.stoppedBy);
-    setMsg('Board generated. Good luck!');
+    gameStatus.value = GameStatuses.BOARD_GENERATED
+    setGeneratingMsg('Board generated. Good luck!');
     startTimer();
   }
 }
+
+function getStatusMessage(status: GameStatus): string {
+  switch (status) {
+    case GameStatuses.WELCOME:
+      return 'Click "New Game" to start a puzzle.';
+    case GameStatuses.PLAYING:
+      return '';
+    case GameStatuses.WON:
+      return `🎉 <b>Congratulations, You won!</b> 🎉 <br> Completion time: <strong>${formattedTimer.value}</strong>`;
+    case GameStatuses.GENERATING:
+      return 'Generating puzzle...';
+    case GameStatuses.GENERATING_ERROR:
+      return 'Error generating puzzle. Please try again.';
+    case GameStatuses.BOARD_GENERATED:
+      return 'Board generated. Click "Start Game" to begin playing.';
+    default:
+      return '';
+  }
+}
+
+// Watch on gameStatus and set the message dynamically
+watch(gameStatus, (newStatus) => {
+  setStatusMsg(getStatusMessage(newStatus));
+}, { immediate: true });
 
 // timeout id for delayed modal show (so we can clear it)
 let winModalTimeout: number | undefined;
@@ -96,7 +150,7 @@ watch(win, (val) => {
 
   if (val) {
     stopTimer();
-    setMsg('You won!');
+    gameStatus.value = GameStatuses.WON
     // add 1500s delay before showing the modal to allow UI transitions to settle
     winModalTimeout = window.setTimeout(() => {
       showWinModal.value = true;
@@ -105,6 +159,7 @@ watch(win, (val) => {
   } else {
     // If somehow win becomes false, hide modal immediately
     showWinModal.value = false;
+    gameStatus.value = GameStatuses.PLAYING;
   }
 });
 
@@ -123,36 +178,43 @@ onBeforeUnmount(() => {
       <queen-info
           :total-possible-solutions="generationResult && generationResult.solutions || 0"
           :board-size="size"
-          :generating-message="messages"
+          :generating-message="statusMessages"
           :formatted-timer="formattedTimer"
+          :game-status="gameStatus"
       />
       <queen-controls
           :can-undo="history.length > 1"
-          @new-game="() => {showChooseModal = true}"
+          :game-status="gameStatus"
+          @new-game="handleNewGame"
           @undo="undo"
           @clear-board="clearBoard"
           @reset-game="handleResetGame"
+          @start-game="handleStartGame"
       />
     </div>
-    <div v-if="queensPuzzle.length > 0">
-      <queen-board
-          v-if="queensPuzzle.length > 3 && !isGenerating"
-          :queens-puzzle="queensPuzzle"
-          :board-state="boardState"
-          :conflict-cells="conflicts"
-          :is-won="win"
-          @queen-cell-pointerdown="handlePointerDown"
-          @queen-cell-pointerup="handlePointerUp"
-          @queen-cell-pointerenter="handlePointerEnter"
-      />
-      <spinner v-else class="spinner"/>
-    </div>
-    <div v-else>Click "New Game" to start a puzzle.</div>
+    <queen-board
+        v-if="gameStatus === GameStatuses.PLAYING || gameStatus === GameStatuses.WON"
+        :queens-puzzle="queensPuzzle"
+        :board-state="boardState"
+        :conflict-cells="conflicts"
+        :is-won="win"
+        @queen-cell-pointerdown="handlePointerDown"
+        @queen-cell-pointerup="handlePointerUp"
+        @queen-cell-pointerenter="handlePointerEnter"
+    />
+    <spinner v-if="gameStatus === GameStatuses.GENERATING" class="spinner"/>
+    <generation-info
+        v-if="gameStatus === GameStatuses.GENERATING ||
+        gameStatus === GameStatuses.BOARD_GENERATED ||
+        gameStatus === GameStatuses.GENERATING_ERROR"
+        :generating-message="generatingMessages"
+    ></generation-info>
+    <div v-if="gameStatus === GameStatuses.WELCOME">Click "New Game" to start a puzzle.</div>
 
     <choose-modal
         :show="showChooseModal"
         @choose="newQueensPuzzle"
-        @close="() => showChooseModal = false"
+        @close="handleCancelNewGame"
     />
     <win-modal
         :show="showWinModal"

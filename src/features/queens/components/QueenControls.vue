@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import {type GameStatus, GameStatuses} from "../models/GameStatus.ts";
 
 defineProps<{
   canUndo: boolean;
+  gameStatus: GameStatus;
 }>();
 
 defineEmits<{
@@ -10,6 +12,7 @@ defineEmits<{
   (e: 'resetGame'): void;
   (e: 'clearBoard'): void;
   (e: 'newGame', size?: number): void;
+  (e: 'startGame'): void;
 }>();
 
 const selectedSize = ref<number>(-2);
@@ -17,19 +20,33 @@ const selectedSize = ref<number>(-2);
 
 <template>
   <div class="board-controls">
-    <button class="btn-generate" @click="$emit('newGame', selectedSize)">
+    <button
+        v-if="gameStatus === GameStatuses.WON || gameStatus === GameStatuses.PLAYING || gameStatus === GameStatuses.WELCOME"
+        class="btn-generate" @click="$emit('newGame', selectedSize)">
       <span class="btn-icon">🎲</span>
       <span class="btn-text">New Game</span>
     </button>
-    <button class="btn-undo" @click="$emit('undo')" :disabled="!canUndo">
+    <button
+        v-if="gameStatus === GameStatuses.BOARD_GENERATED"
+        class="btn-generate" @click="$emit('startGame')">
+      <span class="btn-icon">🎮</span>
+      <span class="btn-text">Start Game</span>
+    </button>
+    <button
+        v-if="gameStatus === GameStatuses.PLAYING"
+        class="btn-undo" @click="$emit('undo')" :disabled="!canUndo">
       <span class="btn-icon">↶</span>
       <span class="btn-text">Undo</span>
     </button>
-    <button class="btn-clear" @click="$emit('clearBoard')" :disabled="!canUndo">
+    <button
+        v-if="gameStatus === GameStatuses.PLAYING"
+        class="btn-clear" @click="$emit('clearBoard')" :disabled="!canUndo">
       <span class="btn-icon">🧹</span>
       <span class="btn-text">Clear Board</span>
     </button>
-    <button class="btn-reset" @click="$emit('resetGame')">
+    <button
+        v-if="gameStatus === GameStatuses.PLAYING"
+        class="btn-reset" @click="$emit('resetGame')">
       <span class="btn-icon">🔃</span>
       <span class="btn-text">Reset Game</span>
     </button>
@@ -43,6 +60,11 @@ const selectedSize = ref<number>(-2);
   gap: 1rem;
   justify-content: space-between;
   width: 100%;
+  min-width: 600px;
+}
+
+.board-controls:has(button:only-child) {
+  justify-content: center;
 }
 
 .board-controls button {
