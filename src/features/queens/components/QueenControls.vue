@@ -100,18 +100,21 @@ const selectedSize = ref<number>(-2);
 }
 
 
-/* Updated colors for buttons using root palette variables */
+/* Updated colors for buttons using gradients and shadows for consistency */
+
+/* New Game - Green (secondary palette) */
 .btn-generate {
-  /* keep green role but align to --color-secondary palette */
-  background: var(--color-secondary-500);
+  background: linear-gradient(180deg, #32b432 0%, #228b22 100%);
   color: var(--color-neutral);
+  box-shadow: 0 4px 12px rgba(34, 139, 34, 0.3);
 }
 
 .btn-generate:hover {
-  background: var(--color-secondary-600);
+  background: linear-gradient(180deg, #28a428 0%, #1f7e1f 100%);
+  box-shadow: 0 6px 16px rgba(34, 139, 34, 0.4);
 }
 
-/* Start Game uses a warm gradient (coral/orange) to invite the user to begin */
+/* Start Game - Coral/Orange (primary palette) */
 .btn-start {
   background: linear-gradient(180deg, #ffab70 0%, #ff7f50 100%);
   color: #3d1a0a;
@@ -123,49 +126,56 @@ const selectedSize = ref<number>(-2);
   box-shadow: 0 6px 16px rgba(255, 127, 80, 0.4);
 }
 
-/* Undo uses the tertiary (blue) palette; default should be a bit darker (was hover), hover steps darker */
+/* Undo - Blue (tertiary palette) */
 .btn-undo {
-  background: var(--color-tertiary-400); /* darker base than before */
-  color: white;
+  background: linear-gradient(180deg, #70d0ff 0%, #00bfff 100%);
+  color: #0a2a3d;
+  box-shadow: 0 4px 12px rgba(0, 191, 255, 0.3);
 }
 
 .btn-undo:hover {
-  background: var(--color-tertiary-500); /* hover moves up the palette */
+  background: linear-gradient(180deg, #5cc8ff 0%, #00a6e6 100%);
+  box-shadow: 0 6px 16px rgba(0, 191, 255, 0.4);
 }
 
 .btn-undo:disabled {
-  /* subtle, accessible disabled shade from tertiary palette (unchanged) */
-  background: var(--color-tertiary-100);
+  background: linear-gradient(180deg, #e6f7ff 0%, #c1eaff 100%);
   color: var(--color-tertiary-700);
   cursor: not-allowed;
   box-shadow: none;
+  opacity: 0.7;
 }
 
-/* Erase should be a soft/lighter coral; make base a bit darker (was hover), hover steps darker */
+/* Clear Board - Light Coral (primary palette lighter) */
 .btn-clear {
-  background: var(--color-primary-300);
-  color: var(--color-secondary-900);
+  background: linear-gradient(180deg, #ffccc1 0%, #ffab99 100%);
+  color: #4a1a0a;
+  box-shadow: 0 4px 12px rgba(255, 171, 153, 0.3);
 }
 
 .btn-clear:hover {
-  background: var(--color-primary-400);
+  background: linear-gradient(180deg, #ffbcad 0%, #ff9a85 100%);
+  box-shadow: 0 6px 16px rgba(255, 171, 153, 0.4);
 }
 
-/* Add a compact, advanced visual treatment for disabled Clear button: apply a subtle desaturation + brightness tweak */
 .btn-clear:disabled {
-  background: var(--color-primary-200);
+  background: linear-gradient(180deg, #ffece6 0%, #ffccc1 100%);
+  color: #994d33;
   cursor: not-allowed;
+  box-shadow: none;
+  opacity: 0.7;
 }
 
-/* Reset stays as the error action (strong red) using --color-error */
+/* Reset Game - Red (error color) */
 .btn-reset {
-  background: var(--color-error);
+  background: linear-gradient(180deg, #d42020 0%, #ac1010 100%);
   color: white;
+  box-shadow: 0 4px 12px rgba(172, 16, 16, 0.3);
 }
 
 .btn-reset:hover {
-  /* darken slightly on hover for clear affordance */
-  filter: brightness(0.9);
+  background: linear-gradient(180deg, #c01818 0%, #960e0e 100%);
+  box-shadow: 0 6px 16px rgba(172, 16, 16, 0.4);
 }
 
 /* Ensure disabled buttons generally look subdued */
