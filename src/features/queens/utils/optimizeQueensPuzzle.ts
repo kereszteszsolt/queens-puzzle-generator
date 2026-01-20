@@ -56,12 +56,12 @@ export async function optimizeQueensPuzzle(
     let iterations = 0;
 
     let history: BoardSnapshot[] = [];
-    let cellsToChooseFrom: Int16Array = getShuffledArray(0, size * size);
-    let cellIndex = 0;
     let failedAttempts = 0;
+    let successfulChanges = 0;
+    let failedChanges = 0;
 
     while (solution > targetMaxSolutions && iterations < iterationLimit  && (Date.now() - startTime) < timeLimit) {
-        cb(`Iteration ${iterations}: Current solution count: ${solution} Time elapsed: ${Date.now() - startTime}ms`);
+        cb(`Iteration ${iterations}: Current solution count: ${solution} Time elapsed: ${(Date.now() - startTime)} s`);
         iterations++;
 
         // Yield to event loop periodically to allow UI updates
@@ -69,58 +69,41 @@ export async function optimizeQueensPuzzle(
             await new Promise(resolve => setTimeout(resolve, 0));
         }
 
-        if (cellIndex > cellsToChooseFrom.length) {
-            cellsToChooseFrom = getShuffledArray(0, size * size);
-            cellIndex = 0;
-        }
+        let newBoard = getChangeSamples(board, size, solution);
 
-        const idx = cellsToChooseFrom[cellIndex++]!;
-        const neighbors: number[] = getTRBLNeighborIndices(idx, size*size);
-
-        if  (neighbors.length === 0) {
-            continue;
-        }
-
-        let neighborIdx = neighbors[Math.floor(Math.random() * neighbors.length)]!;
-        let currentCellColor = board[idx]!;
-        let currentNeighborColor = board[neighborIdx]!;
-
-        if (currentCellColor === currentNeighborColor) {
-            continue;
-        }
-
-        let result = tryRecolor(board, size, queenIdx, idx, currentNeighborColor, solution);
-        if (!result.validChange) {
-            result = tryRecolor(board, size, queenIdx, neighborIdx, currentCellColor, solution);
-        }
+        let result = tryRecolor(newBoard, size, queenIdx, solution);
         if (result.validChange) {
+            failedAttempts = 0;
+            successfulChanges++;
+            //    console.log(`Iteration ${iterations}: Valid change found with new solution count: ${result.newSolutions}`);
             // update if improved
-            if (result.newSolutions! < solution) {
-                solution =   result.newSolutions!;
-                // record history
-                history.push({
-                    board: board.slice(),
-                    solutions: solution
-                });
+            solution = result.newSolutions!;
+            board = newBoard;
+            // record history
+            history.push({
+                board: board.slice(),
+                solutions: solution
+            });
 
-                cb(`Iteration ${iterations}: New best solution count: ${solution}`);
+            cb(`Iteration ${iterations}: New best solution count: ${solution}`);
 
-                if (solution <= targetMaxSolutions) {
-                    cb(`Target solution count ${targetMaxSolutions} reached at iteration ${iterations}.`);
-                    return { board, solutions: solution, iterations, stoppedBy: "targetReached"  };
-                }
-                continue;
+            if (solution <= targetMaxSolutions) {
+                cb(`Target solution count ${targetMaxSolutions} reached at iteration ${iterations}.`);
+                return {board, solutions: solution, iterations, stoppedBy: "targetReached"};
             }
+            continue;
         }
         failedAttempts++;
-        if (failedAttempts >= size * size) {
+        failedChanges++;
+        console.debug(`Success rate: ${(successfulChanges / (successfulChanges + failedChanges) * 100).toFixed(2)}%`);
+        if (failedAttempts >= size*size) {
             failedAttempts = 0;
             // revert to a previous state
             if (history.length > 0) {
                 const snapshot = history[history.length - 1]!;
                 board = snapshot.board.slice();
                 solution = snapshot.solutions
-                history.pop()
+                history.pop();
                 cb(`Iteration ${iterations}: Reverted to previous state with solution count: ${solution}`);
             }
         }
@@ -133,36 +116,62 @@ export async function optimizeQueensPuzzle(
 }
 
 function tryRecolor(
-    board: Int8Array,
+    newBoard: Int8Array,
     size: number,
     queenIdx: Int32Array,
-    cellIdx: number,
-    newColor: number,
     solution: number,
 ): { validChange: boolean, newSolutions?: number } {
-    const oldColor = board[cellIdx];
-    if (oldColor === newColor) return {validChange: false};
-
-    board[cellIdx] = newColor;
 
     // 1) validate initial queens
-    if (!areFixedQueensValidForColors(board, queenIdx, size)) {
-        board[cellIdx] = oldColor!;
+    if (!areFixedQueensValidForColors(newBoard, queenIdx, size)) {
         return {validChange: false};
     }
 
     // 2) validate color regions
-    if (!validateColorRegions(board, size)) {
-        board[cellIdx] = oldColor!;
+    if (!validateColorRegions(newBoard, size)) {
         return {validChange: false};
     }
 
     // 3) validate solutions count
-    const newSolution = countQueensSolutions(board, size, solution);
+    const newSolution = countQueensSolutions(newBoard, size, solution);
     if (newSolution === 0 || newSolution >= solution) {
-        board[cellIdx] = oldColor!;
         return {validChange: false};
     }
 
     return {validChange: true, newSolutions: newSolution};
+}
+
+function getChangeSamples(board: Int8Array, size: number, solutions: number): Int8Array {
+    const newBoard = board.slice();
+    const sBIdxArr = getShuffledArray(0, size * size);
+
+    let changeCount = 0;
+    //const changeLimit = Math.floor(Math.random() * 2) + 1;
+    const changeLimit = Math.floor(Math.random() * Math.min(solutions, size/3)) + 1;
+
+    for (let i = 0; i < size * size; i++) {
+        const idx = sBIdxArr[i]!;
+        const neighbors: number[] = getTRBLNeighborIndices(idx, size); // <-- likely size, not size*size
+
+        const currentColor = newBoard[idx];
+
+        for (let n = 0; n < neighbors.length; n++) {
+            const nIdx = neighbors[n]!;
+            const neighborColor = newBoard[nIdx];
+
+            if (neighborColor !== currentColor) {
+                if (Math.random() < 0.5) {
+                    newBoard[idx] = neighborColor!;   // <-- change THIS cell
+                    changeCount++;
+                    break; // one change per idx
+                }
+            }
+
+            if (changeCount >= changeLimit) return newBoard;
+        }
+
+        if (changeCount >= changeLimit) return newBoard;
+    }
+
+    return newBoard;
 }
