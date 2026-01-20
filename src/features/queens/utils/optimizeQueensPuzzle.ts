@@ -4,6 +4,7 @@ import {validateColorRegions} from "./validateColorRegions.ts";
 import {countQueensSolutions} from "./countQueensSolutions.ts";
 import {getShuffledArray} from "./getShuffledArray.ts";
 import {getTRBLNeighborIndices} from "./getTRBLNeighboursIndices.ts";
+import type {GenMessage} from "../models/GenMessage.ts";
 
 export interface OptimizeOptions {
     timeLimitMs?: number      // default: 180_000 (3 minutes)
@@ -27,7 +28,7 @@ export async function optimizeQueensPuzzle(
     queens: Int8Array,
     size: number,
     targetMaxSolutions: number,
-    cb: (data: string) => void,
+    cb: (data: GenMessage) => void,
     options: OptimizeOptions = {}
 ): Promise<OptimizeResult> {
     const startTime = Date.now();
@@ -61,7 +62,16 @@ export async function optimizeQueensPuzzle(
     let failedChanges = 0;
 
     while (solution > targetMaxSolutions && iterations < iterationLimit  && (Date.now() - startTime) < timeLimit) {
-        cb(`Iteration ${iterations}: Current solution count: ${solution} Time elapsed: ${(Date.now() - startTime)} s`);
+        cb({
+            iteration: iterations,
+            solutionsCount: solution,
+            elapsedTimeMs: Date.now() - startTime,
+            currentBoard: board,
+            timeLimitMs: timeLimit,
+            iterationLimit: iterationLimit,
+            successRate: successfulChanges / (successfulChanges + failedChanges),
+            targetMaxSolutions: targetMaxSolutions
+        });
         iterations++;
 
         // Yield to event loop periodically to allow UI updates
@@ -75,7 +85,6 @@ export async function optimizeQueensPuzzle(
         if (result.validChange) {
             failedAttempts = 0;
             successfulChanges++;
-            //    console.log(`Iteration ${iterations}: Valid change found with new solution count: ${result.newSolutions}`);
             // update if improved
             solution = result.newSolutions!;
             board = newBoard;
@@ -85,10 +94,7 @@ export async function optimizeQueensPuzzle(
                 solutions: solution
             });
 
-            cb(`Iteration ${iterations}: New best solution count: ${solution}`);
-
             if (solution <= targetMaxSolutions) {
-                cb(`Target solution count ${targetMaxSolutions} reached at iteration ${iterations}.`);
                 return {board, solutions: solution, iterations, stoppedBy: "targetReached"};
             }
             continue;
@@ -104,7 +110,6 @@ export async function optimizeQueensPuzzle(
                 board = snapshot.board.slice();
                 solution = snapshot.solutions
                 history.pop();
-                cb(`Iteration ${iterations}: Reverted to previous state with solution count: ${solution}`);
             }
         }
     }
@@ -146,12 +151,11 @@ function getChangeSamples(board: Int8Array, size: number, solutions: number): In
     const sBIdxArr = getShuffledArray(0, size * size);
 
     let changeCount = 0;
-    //const changeLimit = Math.floor(Math.random() * 2) + 1;
     const changeLimit = Math.floor(Math.random() * Math.min(solutions, size/3)) + 1;
 
     for (let i = 0; i < size * size; i++) {
         const idx = sBIdxArr[i]!;
-        const neighbors: number[] = getTRBLNeighborIndices(idx, size); // <-- likely size, not size*size
+        const neighbors: number[] = getTRBLNeighborIndices(idx, size);
 
         const currentColor = newBoard[idx];
 
@@ -161,9 +165,9 @@ function getChangeSamples(board: Int8Array, size: number, solutions: number): In
 
             if (neighborColor !== currentColor) {
                 if (Math.random() < 0.5) {
-                    newBoard[idx] = neighborColor!;   // <-- change THIS cell
+                    newBoard[idx] = neighborColor!;
                     changeCount++;
-                    break; // one change per idx
+                    break;
                 }
             }
 

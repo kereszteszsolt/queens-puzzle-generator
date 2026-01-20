@@ -16,6 +16,7 @@ import WinModal from "../components/WinModal.vue";
 import {useConflicts} from "../composables/useConflicts.ts";
 import {type GameStatus, GameStatuses} from "../models/GameStatus.ts";
 import GenerationInfo from "../components/GenerationInfo.vue";
+import type {GenMessage} from "../models/GenMessage.ts";
 
 const queensPuzzle: Ref<number[][]> = ref([]);
 const generationResult: Ref<OptimizeResult | null> = ref(null);
@@ -23,8 +24,9 @@ const generationResult: Ref<OptimizeResult | null> = ref(null);
 const size = ref(8);
 let maxSolutions = 10;
 let isGenerating = ref(false);
-let generatingMessages = ref<string>('');
+let genStateMessage: Ref<GenMessage | null> = ref(null);
 let statusMessages = ref<string>('');
+let finalGenMessage = ref<string>('');
 let gameStatus: Ref<GameStatus> = ref(GameStatuses.WELCOME);
 
 const {boardState, history, undo, clearBoard, resetBoard, pushHistorySnapshot} = useGameState(size)
@@ -66,12 +68,16 @@ function handleCancelNewGame() {
   }
 }
 
-function setGeneratingMsg(message: string) {
-  generatingMessages.value = message;
+function setGeneratingMsg(data: GenMessage) {
+  genStateMessage.value = data;
 }
 
 function setStatusMsg(message: string) {
   statusMessages.value = message;
+}
+
+function setFinalGenMsg(message: string) {
+  finalGenMessage.value = message;
 }
 
 async function newQueensPuzzle(payload: { size: number; maxSolutions: number }): Promise<void> {
@@ -97,18 +103,17 @@ async function newQueensPuzzle(payload: { size: number; maxSolutions: number }):
   await new Promise(resolve => setTimeout(resolve, 50));
 
   try {
-    const result = await generateQueensPuzzle(size.value, maxSolutions, setGeneratingMsg);
-    generationResult.value = result;
-    queensPuzzle.value = int8FlatMatrixTo2D(result.board, size.value);
+    generationResult.value = await generateQueensPuzzle(size.value, maxSolutions, setGeneratingMsg);
+    queensPuzzle.value = int8FlatMatrixTo2D(generationResult.value.board, size.value);
     resetBoard();
   } catch (error) {
     console.error("Error generating new puzzle:", error);
     gameStatus.value = GameStatuses.GENERATING_ERROR;
-    setGeneratingMsg('Error generating puzzle. Please try again.');
+    setFinalGenMsg(`Error generating puzzle. Please try again. ${(error as Error).message}`);
   } finally {
     isGenerating.value = false;
     gameStatus.value = GameStatuses.BOARD_GENERATED
-    setGeneratingMsg('Board generated. Good luck!');
+    setFinalGenMsg(`Generated board with ${generationResult.value?.solutions || 0} solutions.`);
     startTimer();
   }
 }
@@ -208,7 +213,9 @@ onBeforeUnmount(() => {
         v-if="gameStatus === GameStatuses.GENERATING ||
         gameStatus === GameStatuses.BOARD_GENERATED ||
         gameStatus === GameStatuses.GENERATING_ERROR"
-        :generating-message="generatingMessages"
+        :genStatusMessage="genStateMessage"
+        :gameStatus="gameStatus"
+        :finalGenMessage="finalGenMessage"
     ></generation-info>
     <div v-if="gameStatus === GameStatuses.WELCOME">Click "New Game" to start a puzzle.</div>
 
