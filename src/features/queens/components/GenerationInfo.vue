@@ -99,7 +99,7 @@ defineProps<{
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 12px;
   width: 100%;
   margin-top: 8px;
@@ -141,42 +141,60 @@ defineProps<{
   color: #ac1010;
 }
 
-/* Styles for the final gen message HTML content */
-.generation-content :deep(.final-gen-message) {
-  text-align: center;
-}
-
-.generation-content :deep(.final-gen-message h3) {
-  font-size: 18px;
+/* Deep selectors for dynamically injected HTML content */
+.generation-content :deep(.card-title) {
+  font-size: 20px;
   font-weight: 700;
   color: #123066;
-  margin: 0 0 12px 0;
+  margin: 0 0 8px 0;
 }
 
-.generation-content :deep(.final-gen-message ul) {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 16px;
-  justify-content: center;
-}
-
-.generation-content :deep(.final-gen-message li) {
-  background: rgba(93, 130, 255, 0.08);
-  border-radius: 8px;
-  padding: 8px 14px;
-  font-size: 13px;
-  color: #123066;
-}
-
-.generation-content :deep(.final-gen-message.error h3) {
+.generation-content :deep(.card-title.error-title) {
   color: #ac1010;
 }
 
-.generation-content :deep(.final-gen-message.error p) {
-  color: #5a3030;
-  font-size: 13px;
+.generation-content :deep(.card-subtitle) {
+  font-size: 14px;
+  color: #3b4f7a;
+  margin: 0 0 8px 0;
+}
+
+.generation-content :deep(.card-note) {
+  font-size: 12px;
+  color: #5a6a8a;
+  font-style: italic;
+  margin-top: 8px;
+  line-height: 1.5;
+}
+
+.generation-content :deep(.stats-grid) {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.generation-content :deep(.stat-item) {
+  background: rgba(93, 130, 255, 0.08);
+  border-radius: 10px;
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.generation-content :deep(.stat-label) {
+  font-size: 11px;
+  font-weight: 600;
+  color: #3b4f7a;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.generation-content :deep(.stat-value) {
+  font-size: 18px;
+  font-weight: 700;
+  color: #123066;
 }
 </style>

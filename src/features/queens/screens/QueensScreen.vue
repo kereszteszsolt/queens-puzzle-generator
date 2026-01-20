@@ -95,17 +95,37 @@ function formatStopReason(reason: OptimizeResult["stoppedBy"]) {
 
 function buildFinalGenMessage(result: OptimizeResult): string {
   return `
-    <div class="final-gen-message">
-      <h3>✅ Board generation completed</h3>
-      <ul>
-        <li><strong>Board size:</strong> ${result.size} × ${result.size}</li>
-        <li><strong>Number of solutions:</strong> ${result.solutions}</li>
-        <li><strong>Elapsed time:</strong> ${result.elapsedTimeMs / 1000} s</li>
-        <li><strong>Iteration:</strong> ${result.iterations}</li>
-        <li><strong>Stop reason:</strong> ${formatStopReason(result.stoppedBy)}</li>
-        <li><strong>Ieration limit:</strong> ${result.iterationLimit}</li>
-        <li><strong>Time Limit:</strong> ${result.timeLimitMs / 1000} s</li>
-      </ul>
+    <h3 class="card-title">✅ Board Generation Completed</h3>
+    <p class="card-subtitle">${formatStopReason(result.stoppedBy)}</p>
+    <div class="stats-grid">
+      <div class="stat-item">
+        <span class="stat-label">Board Size</span>
+        <span class="stat-value">${result.size} × ${result.size}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Solutions</span>
+        <span class="stat-value">${result.solutions}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Target</span>
+        <span class="stat-value">≤ ${result.targetMaxSolutions}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Elapsed Time</span>
+        <span class="stat-value">${(result.elapsedTimeMs / 1000).toFixed(1)}s</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Iterations</span>
+        <span class="stat-value">${result.iterations.toLocaleString()}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Time Limit</span>
+        <span class="stat-value">${result.timeLimitMs / 1000}s</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Iteration Limit</span>
+        <span class="stat-value">${result.iterationLimit.toLocaleString()}</span>
+      </div>
     </div>
   `;
 }
@@ -140,11 +160,9 @@ async function newQueensPuzzle(payload: { size: number; maxSolutions: number }):
   } catch (error) {
     console.error("Error generating new puzzle:", error);
     gameStatus.value = GameStatuses.GENERATING_ERROR;
-    setFinalGenMsg(`<div class="final-gen-message error">
-                      <h3>❌ Puzzle generation failed</h3>
-                      <p><strong>Error:</strong> ${(error as Error).message}</p>
-                      <p>Please try again.</p>
-                    </div>`);
+    setFinalGenMsg(`<h3 class="card-title error-title">❌ Puzzle Generation Failed</h3>
+                    <p class="card-subtitle">${(error as Error).message}</p>
+                    <p class="card-note">Please try again with different settings.</p>`);
   } finally {
     isGenerating.value = false;
     gameStatus.value = GameStatuses.BOARD_GENERATED
