@@ -16,6 +16,11 @@ export interface OptimizeResult {
     solutions: number;
     iterations: number;
     stoppedBy: "targetReached" | "timeLimit" | "iterationLimit";
+    size: number;
+    targetMaxSolutions: number;
+    iterationLimit: number;
+    timeLimitMs: number;
+    elapsedTimeMs: number;
 }
 
 export interface BoardSnapshot {
@@ -70,7 +75,8 @@ export async function optimizeQueensPuzzle(
             timeLimitMs: timeLimit,
             iterationLimit: iterationLimit,
             successRate: successfulChanges / (successfulChanges + failedChanges),
-            targetMaxSolutions: targetMaxSolutions
+            targetMaxSolutions: targetMaxSolutions,
+            size: size
         });
         iterations++;
 
@@ -95,7 +101,7 @@ export async function optimizeQueensPuzzle(
             });
 
             if (solution <= targetMaxSolutions) {
-                return {board, solutions: solution, iterations, stoppedBy: "targetReached"};
+                return {board, solutions: solution, iterations, stoppedBy: "targetReached", size, elapsedTimeMs: Date.now() - startTime, iterationLimit, timeLimitMs: timeLimit, targetMaxSolutions};
             }
             continue;
         }
@@ -117,7 +123,7 @@ export async function optimizeQueensPuzzle(
     const stoppedBy: OptimizeResult["stoppedBy"] =
         iterations >= iterationLimit ? "iterationLimit" : "timeLimit";
 
-    return {board: board, solutions: solution, iterations, stoppedBy};
+    return {board: board, solutions: solution, iterations, stoppedBy, size, targetMaxSolutions, iterationLimit, timeLimitMs: timeLimit, elapsedTimeMs: Date.now() - startTime};
 }
 
 function tryRecolor(

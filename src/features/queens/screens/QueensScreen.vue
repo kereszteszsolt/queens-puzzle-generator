@@ -80,6 +80,37 @@ function setFinalGenMsg(message: string) {
   finalGenMessage.value = message;
 }
 
+function formatStopReason(reason: OptimizeResult["stoppedBy"]) {
+  switch (reason) {
+    case "targetReached":
+      return "🎯 Target reached";
+    case "timeLimit":
+      return "⏱️ Stopped due to time limit";
+    case "iterationLimit":
+      return "🔁 Iteration limit reached";
+    default:
+      return "Unknown reason";
+  }
+}
+
+function buildFinalGenMessage(result: OptimizeResult): string {
+  return `
+    <div class="final-gen-message">
+      <h3>✅ Board generation completed</h3>
+      <ul>
+        <li><strong>Board size:</strong> ${result.size} × ${result.size}</li>
+        <li><strong>Number of solutions:</strong> ${result.solutions}</li>
+        <li><strong>Elapsed time:</strong> ${result.elapsedTimeMs / 1000} s</li>
+        <li><strong>Iteration:</strong> ${result.iterations}</li>
+        <li><strong>Stop reason:</strong> ${formatStopReason(result.stoppedBy)}</li>
+        <li><strong>Ieration limit:</strong> ${result.iterationLimit}</li>
+        <li><strong>Time Limit:</strong> ${result.timeLimitMs / 1000} s</li>
+      </ul>
+    </div>
+  `;
+}
+
+
 async function newQueensPuzzle(payload: { size: number; maxSolutions: number }): Promise<void> {
   const {size: newSize, maxSolutions: newMaxSolutions} = payload;
   showChooseModal.value = false;
@@ -109,11 +140,15 @@ async function newQueensPuzzle(payload: { size: number; maxSolutions: number }):
   } catch (error) {
     console.error("Error generating new puzzle:", error);
     gameStatus.value = GameStatuses.GENERATING_ERROR;
-    setFinalGenMsg(`Error generating puzzle. Please try again. ${(error as Error).message}`);
+    setFinalGenMsg(`<div class="final-gen-message error">
+                      <h3>❌ Puzzle generation failed</h3>
+                      <p><strong>Error:</strong> ${(error as Error).message}</p>
+                      <p>Please try again.</p>
+                    </div>`);
   } finally {
     isGenerating.value = false;
     gameStatus.value = GameStatuses.BOARD_GENERATED
-    setFinalGenMsg(`Generated board with ${generationResult.value?.solutions || 0} solutions.`);
+    setFinalGenMsg(buildFinalGenMessage(generationResult.value!));
     startTimer();
   }
 }
@@ -140,7 +175,7 @@ function getStatusMessage(status: GameStatus): string {
 // Watch on gameStatus and set the message dynamically
 watch(gameStatus, (newStatus) => {
   setStatusMsg(getStatusMessage(newStatus));
-}, { immediate: true });
+}, {immediate: true});
 
 // timeout id for delayed modal show (so we can clear it)
 let winModalTimeout: number | undefined;
@@ -197,6 +232,18 @@ onBeforeUnmount(() => {
           @start-game="handleStartGame"
       />
     </div>
+
+    <spinner v-if="gameStatus === GameStatuses.GENERATING" class="spinner"/>
+    <generation-info
+        v-if="gameStatus === GameStatuses.GENERATING ||
+        gameStatus === GameStatuses.BOARD_GENERATED ||
+        gameStatus === GameStatuses.GENERATING_ERROR"
+        :genStatusMessage="genStateMessage"
+        :gameStatus="gameStatus"
+        :finalGenMessage="finalGenMessage"
+    ></generation-info>
+    <div v-if="gameStatus === GameStatuses.WELCOME">Click "New Game" to start a puzzle.</div>
+
     <queen-board
         v-if="gameStatus === GameStatuses.PLAYING || gameStatus === GameStatuses.WON || gameStatus === GameStatuses.BOARD_GENERATED"
         :queens-puzzle="queensPuzzle"
@@ -208,16 +255,6 @@ onBeforeUnmount(() => {
         @queen-cell-pointerup="handlePointerUp"
         @queen-cell-pointerenter="handlePointerEnter"
     />
-    <spinner v-if="gameStatus === GameStatuses.GENERATING" class="spinner"/>
-    <generation-info
-        v-if="gameStatus === GameStatuses.GENERATING ||
-        gameStatus === GameStatuses.BOARD_GENERATED ||
-        gameStatus === GameStatuses.GENERATING_ERROR"
-        :genStatusMessage="genStateMessage"
-        :gameStatus="gameStatus"
-        :finalGenMessage="finalGenMessage"
-    ></generation-info>
-    <div v-if="gameStatus === GameStatuses.WELCOME">Click "New Game" to start a puzzle.</div>
 
     <choose-modal
         :show="showChooseModal"

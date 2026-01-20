@@ -7,4 +7,5 @@ export interface GenMessage {
     "iterationLimit"?: number;
     "successRate": number;
     "targetMaxSolutions": number;
+    "size": number;
 }
