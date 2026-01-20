@@ -21,14 +21,14 @@ const selectedSize = ref<number>(-2);
 <template>
   <div class="board-controls">
     <button
-        v-if="gameStatus === GameStatuses.WON || gameStatus === GameStatuses.PLAYING || gameStatus === GameStatuses.WELCOME"
+        v-if="gameStatus === GameStatuses.WON || gameStatus === GameStatuses.PLAYING || gameStatus === GameStatuses.WELCOME || gameStatus === GameStatuses.BOARD_GENERATED"
         class="btn-generate" @click="$emit('newGame', selectedSize)">
       <span class="btn-icon">🎲</span>
       <span class="btn-text">New Game</span>
     </button>
     <button
         v-if="gameStatus === GameStatuses.BOARD_GENERATED"
-        class="btn-generate" @click="$emit('startGame')">
+        class="btn-start" @click="$emit('startGame')">
       <span class="btn-icon">🎮</span>
       <span class="btn-text">Start Game</span>
     </button>
@@ -109,6 +109,18 @@ const selectedSize = ref<number>(-2);
 
 .btn-generate:hover {
   background: var(--color-secondary-600);
+}
+
+/* Start Game uses a warm gradient (coral/orange) to invite the user to begin */
+.btn-start {
+  background: linear-gradient(180deg, #ffab70 0%, #ff7f50 100%);
+  color: #3d1a0a;
+  box-shadow: 0 4px 12px rgba(255, 127, 80, 0.3);
+}
+
+.btn-start:hover {
+  background: linear-gradient(180deg, #ff9a5c 0%, #e67345 100%);
+  box-shadow: 0 6px 16px rgba(255, 127, 80, 0.4);
 }
 
 /* Undo uses the tertiary (blue) palette; default should be a bit darker (was hover), hover steps darker */

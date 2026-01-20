@@ -174,17 +174,17 @@ async function newQueensPuzzle(payload: { size: number; maxSolutions: number }):
 function getStatusMessage(status: GameStatus): string {
   switch (status) {
     case GameStatuses.WELCOME:
-      return 'Click "New Game" to start a puzzle.';
+      return `<span class="status-icon">👑</span> Click <strong>"New Game"</strong> to start a puzzle.`;
     case GameStatuses.PLAYING:
       return '';
     case GameStatuses.WON:
-      return `🎉 <b>Congratulations, You won!</b> 🎉 <br> Completion time: <strong>${formattedTimer.value}</strong>`;
+      return `<span class="status-icon">🎉</span> <b>Congratulations, you won!</b> <span class="status-icon">🎉</span><br>Completion time: <strong>${formattedTimer.value}</strong>`;
     case GameStatuses.GENERATING:
-      return 'Generating puzzle...';
+      return `<span class="status-icon">⏳</span> Generating puzzle<span class="loading-dots">...</span>`;
     case GameStatuses.GENERATING_ERROR:
-      return 'Error generating puzzle. Please try again.';
+      return `<span class="status-icon">❌</span> Error generating puzzle. Please try again.`;
     case GameStatuses.BOARD_GENERATED:
-      return 'Board generated. Click "Start Game" to begin playing.';
+      return `<span class="status-icon">✅</span> Board generated! Click <strong>"Start Game"</strong> to begin playing, or <strong>"New Game"</strong> to generate a new puzzle.`;
     default:
       return '';
   }
@@ -260,7 +260,12 @@ onBeforeUnmount(() => {
         :gameStatus="gameStatus"
         :finalGenMessage="finalGenMessage"
     ></generation-info>
-    <div v-if="gameStatus === GameStatuses.WELCOME">Click "New Game" to start a puzzle.</div>
+    <div v-if="gameStatus === GameStatuses.WELCOME" class="info-card welcome-card">
+      <div class="card-icon">👑</div>
+      <h3 class="card-title">Welcome to Queens Puzzle!</h3>
+      <p class="card-subtitle">Place queens on the board so that no two queens attack each other and each colored region has exactly one queen.</p>
+      <p class="card-action">Click <strong>"New Game"</strong> to start a puzzle.</p>
+    </div>
 
     <queen-board
         v-if="gameStatus === GameStatuses.PLAYING || gameStatus === GameStatuses.WON || gameStatus === GameStatuses.BOARD_GENERATED"
@@ -307,5 +312,49 @@ onBeforeUnmount(() => {
   flex-direction: column;
   width: 100%;
   gap: 16px;
+}
+
+/* Info card styles matching the project design system */
+.info-card {
+  background: linear-gradient(180deg, #f6f9ff 0%, #e8f0ff 100%);
+  border-radius: 14px;
+  padding: 24px 28px;
+  box-shadow: 0 8px 24px rgba(20, 30, 60, 0.12);
+  border: 2px solid rgba(93, 130, 255, 0.12);
+  text-align: center;
+  width: 100%;
+}
+
+.info-card .card-icon {
+  font-size: 48px;
+  margin-bottom: 8px;
+}
+
+.info-card .card-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #123066;
+  margin: 0 0 8px 0;
+}
+
+.info-card .card-subtitle {
+  font-size: 14px;
+  color: #3b4f7a;
+  margin: 0 0 12px 0;
+  line-height: 1.5;
+}
+
+.info-card .card-action {
+  font-size: 14px;
+  color: #244067;
+  margin: 0;
+  background: rgba(93, 130, 255, 0.08);
+  border-radius: 8px;
+  padding: 10px 16px;
+  display: inline-block;
+}
+
+.welcome-card {
+  max-width: 480px;
 }
 </style>

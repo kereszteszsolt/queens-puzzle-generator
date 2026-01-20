@@ -26,16 +26,43 @@ defineProps({
 .board-info {
   display: flex;
   flex-direction: row;
-  background: rgba(173, 216, 230, 0.8); /* Light bluish gray glassy effect */
+  background: linear-gradient(180deg, #f6f9ff 0%, #e8f0ff 100%);
   border-radius: 10px;
-  padding: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 12px 16px;
+  box-shadow: 0 4px 12px rgba(20, 30, 60, 0.1);
   backdrop-filter: blur(10px);
+  border: 1px solid rgba(93, 130, 255, 0.12);
   text-align: center;
   justify-content: space-between;
   width: 100%;
+  color: #123066;
 }
+
 .board-info-message {
-  justify-content: space-around;
+  justify-content: center;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* Deep selectors for dynamically injected HTML */
+.board-info-message :deep(.status-icon) {
+  display: inline;
+  font-size: 1.1em;
+  vertical-align: middle;
+  margin-right: 2px;
+}
+
+.board-info-message :deep(strong) {
+  color: #0f1b3a;
+}
+
+.board-info-message :deep(.loading-dots) {
+  display: inline-block;
+  animation: pulse 1.2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
 }
 </style>
