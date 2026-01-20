@@ -193,11 +193,12 @@ onBeforeUnmount(() => {
       />
     </div>
     <queen-board
-        v-if="gameStatus === GameStatuses.PLAYING || gameStatus === GameStatuses.WON"
+        v-if="gameStatus === GameStatuses.PLAYING || gameStatus === GameStatuses.WON || gameStatus === GameStatuses.BOARD_GENERATED"
         :queens-puzzle="queensPuzzle"
         :board-state="boardState"
         :conflict-cells="conflicts"
         :is-won="win"
+        :game-status="gameStatus"
         @queen-cell-pointerdown="handlePointerDown"
         @queen-cell-pointerup="handlePointerUp"
         @queen-cell-pointerenter="handlePointerEnter"
