@@ -80,7 +80,8 @@ export async function optimizeQueensPuzzle(
                 iterationLimit: iterationLimit,
                 successRate: 0,
                 targetMaxSolutions: targetMaxSolutions,
-                size: size
+                size: size,
+                bestSolutionsCount: Number.POSITIVE_INFINITY
             });
             // Yield to event loop periodically to allow UI updates
             await new Promise(resolve => setTimeout(resolve, 0));
@@ -94,6 +95,8 @@ export async function optimizeQueensPuzzle(
     let failedAttempts = 0;
     let successfulChanges = 0;
     let failedChanges = 0;
+    let bestSolutions = Number.POSITIVE_INFINITY;
+    let bestBoard: Int8Array = board.slice();
 
     while (solutions > targetMaxSolutions && iterations < iterationLimit  && (Date.now() - startTime) < timeLimit) {
         cb({
@@ -105,7 +108,8 @@ export async function optimizeQueensPuzzle(
             iterationLimit: iterationLimit,
             successRate: successfulChanges / (successfulChanges + failedChanges),
             targetMaxSolutions: targetMaxSolutions,
-            size: size
+            size: size,
+            bestSolutionsCount: bestSolutions
         });
         iterations++;
 
@@ -129,6 +133,12 @@ export async function optimizeQueensPuzzle(
                 solutions: solutions
             });
 
+            // track best solution
+            if (solutions < bestSolutions) {
+                bestSolutions = solutions;
+                bestBoard = board.slice();
+            }
+
             if (solutions <= targetMaxSolutions) {
                 return {board, solutions: solutions, iterations, stoppedBy: "targetReached", size, elapsedTimeMs: Date.now() - startTime, iterationLimit, timeLimitMs: timeLimit, targetMaxSolutions};
             }
@@ -151,7 +161,7 @@ export async function optimizeQueensPuzzle(
     const stoppedBy: OptimizeResult["stoppedBy"] =
         iterations >= iterationLimit ? "iterationLimit" : "timeLimit";
 
-    return {board: board, solutions: solutions, iterations, stoppedBy, size, targetMaxSolutions, iterationLimit, timeLimitMs: timeLimit, elapsedTimeMs: Date.now() - startTime};
+    return {board: bestBoard, solutions: bestSolutions, iterations, stoppedBy, size, targetMaxSolutions, iterationLimit, timeLimitMs: timeLimit, elapsedTimeMs: Date.now() - startTime};
 }
 
 function tryRecolor(

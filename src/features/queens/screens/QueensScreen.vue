@@ -143,6 +143,10 @@ function buildFinalGenMessage(result: OptimizeResult): string {
         <span class="stat-label">Iteration Limit</span>
         <span class="stat-value">${result.iterationLimit.toLocaleString()}</span>
       </div>
+       <div class="stat-item">
+        <span class="stat-label">Stopped By</span>
+        <span class="stat-value">${result.stoppedBy.toString()}</span>
+      </div>
     </div>
   `;
 }

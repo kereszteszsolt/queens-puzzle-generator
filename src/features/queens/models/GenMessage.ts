@@ -8,4 +8,5 @@ export interface GenMessage {
     "successRate": number;
     "targetMaxSolutions": number;
     "size": number;
+    "bestSolutionsCount": number;
 }

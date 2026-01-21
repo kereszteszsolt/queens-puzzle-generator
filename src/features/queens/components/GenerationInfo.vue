@@ -45,6 +45,10 @@ defineProps<{
           <span class="stat-label">Iteration Limit</span>
           <span class="stat-value">{{ genStatusMessage.iterationLimit }}</span>
         </div>
+        <div v-if="genStatusMessage.bestSolutionsCount !== undefined" class="stat-item">
+          <span class="stat-label">Min. Solutions</span>
+          <span class="stat-value">{{ genStatusMessage.bestSolutionsCount }}</span>
+        </div>
       </div>
 
       <p class="card-note">
