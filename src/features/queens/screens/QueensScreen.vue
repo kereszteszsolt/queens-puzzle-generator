@@ -17,6 +17,7 @@ import {useConflicts} from "../composables/useConflicts.ts";
 import {type GameStatus, GameStatuses} from "../models/GameStatus.ts";
 import GenerationInfo from "../components/GenerationInfo.vue";
 import type {GenMessage} from "../models/GenMessage.ts";
+import {getShuffledArray} from "../utils/getShuffledArray.ts";
 
 const queensPuzzle: Ref<number[][]> = ref([]);
 const generationResult: Ref<OptimizeResult | null> = ref(null);
@@ -64,6 +65,23 @@ function handleCancelNewGame() {
   showChooseModal.value = false;
   if (gameStatus.value === GameStatuses.PLAYING) {
     startTimer();
+  }
+}
+
+function handleShuffleColors() {
+  if (!queensPuzzle?.value || queensPuzzle.value.length === 0) return;
+
+  const shuffledColors = getShuffledArray(1, size.value + 1);
+
+  // Single pass optimization: directly map old colors to new colors
+  for (let r = 0; r < size.value; r++) {
+    for (let c = 0; c < size.value; c++) {
+      const currentValue = queensPuzzle.value[r]![c]!;
+      const isNegative = currentValue < 0;
+      const originalColor = Math.abs(currentValue);
+      const newColor = shuffledColors[originalColor - 1]!;
+      queensPuzzle.value[r]![c] = isNegative ? -newColor : newColor;
+    }
   }
 }
 
@@ -247,6 +265,7 @@ onBeforeUnmount(() => {
           @reset-game="handleResetGame"
           @start-game="handleStartGame"
           @replay="handleResetGame"
+          @shuffle-colors="handleShuffleColors"
       />
     </div>
 

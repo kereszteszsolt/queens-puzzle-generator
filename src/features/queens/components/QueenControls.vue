@@ -14,6 +14,7 @@ defineEmits<{
   (e: 'newGame', size?: number): void;
   (e: 'startGame'): void;
   (e: 'replay'): void;
+  (e: 'shuffleColors'): void;
 }>();
 
 const selectedSize = ref<number>(-2);
@@ -56,6 +57,13 @@ const selectedSize = ref<number>(-2);
         class="btn-reset" @click="$emit('resetGame')">
       <span class="btn-icon">🔃</span>
       <span class="btn-text">Reset Game</span>
+    </button>
+    <button
+        v-if="gameStatus === GameStatuses.PLAYING"
+        class="btn-shuffle"
+        @click="$emit('shuffleColors')">
+      <span class="btn-icon">🎨</span>
+      <span class="btn-text">Shuffle Colors</span>
     </button>
   </div>
 </template>
@@ -194,6 +202,18 @@ const selectedSize = ref<number>(-2);
 .btn-reset:hover {
   background: linear-gradient(180deg, #c01818 0%, #960e0e 100%);
   box-shadow: 0 6px 16px rgba(60, 20, 20, 0.45);
+}
+
+/* Shuffle Colors - Purple/Magenta (unique palette) */
+.btn-shuffle {
+  background: linear-gradient(180deg, #bb6bd9 0%, #9b4dbb 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(60, 20, 80, 0.35);
+}
+
+.btn-shuffle:hover {
+  background: linear-gradient(180deg, #a855c7 0%, #8b3da8 100%);
+  box-shadow: 0 6px 16px rgba(60, 20, 80, 0.45);
 }
 
 /* Ensure disabled buttons generally look subdued */
