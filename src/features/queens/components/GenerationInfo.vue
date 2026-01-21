@@ -105,6 +105,25 @@ defineProps<{
   margin-top: 8px;
 }
 
+@media (max-width: 719px) {
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 599px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 479px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+}
+
 .stat-item {
   background: rgba(93, 130, 255, 0.08);
   border-radius: 10px;
@@ -173,6 +192,25 @@ defineProps<{
   gap: 12px;
   width: 100%;
   margin-top: 8px;
+}
+
+@media (max-width: 719px) {
+  .generation-content :deep(.stats-grid) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 599px) {
+  .generation-content :deep(.stats-grid) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 479px) {
+  .generation-content :deep(.stats-grid) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
 }
 
 .generation-content :deep(.stat-item) {

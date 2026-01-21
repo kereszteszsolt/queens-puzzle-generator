@@ -67,7 +67,6 @@ const selectedSize = ref<number>(-2);
   gap: 1rem;
   justify-content: space-between;
   width: 100%;
-  min-width: 600px;
 }
 
 .board-controls:has(button:only-child) {

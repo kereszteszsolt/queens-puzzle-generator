@@ -49,6 +49,11 @@ defineProps({
   flex-direction: row;
   align-items: center;
   justify-content: center;
+  flex-wrap: wrap;
+}
+
+.board-info-message :deep(.message-row > *) {
+  flex-shrink: 0;
 }
 
 .board-info-message :deep(.message-column) {
