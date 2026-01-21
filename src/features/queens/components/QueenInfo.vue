@@ -30,7 +30,6 @@ defineProps({
   border-radius: 10px;
   padding: 12px 16px;
   box-shadow: 0 4px 12px rgba(20, 30, 60, 0.1);
-  backdrop-filter: blur(10px);
   border: 1px solid rgba(93, 130, 255, 0.12);
   text-align: center;
   justify-content: space-between;
@@ -45,11 +44,31 @@ defineProps({
 }
 
 /* Deep selectors for dynamically injected HTML */
+.board-info-message :deep(.message-row) {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.board-info-message :deep(.message-column) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
 .board-info-message :deep(.status-icon) {
-  display: inline;
   font-size: 1.1em;
-  vertical-align: middle;
   margin-right: 2px;
+}
+
+.board-info-message :deep(.status-icon-raised) {
+  font-size: 1.1em;
+  margin-left: 2px;
+  margin-right: 2px;
+  position: relative;
+  top: -2px;
 }
 
 .board-info-message :deep(strong) {

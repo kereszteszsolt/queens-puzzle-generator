@@ -174,17 +174,17 @@ async function newQueensPuzzle(payload: { size: number; maxSolutions: number }):
 function getStatusMessage(status: GameStatus): string {
   switch (status) {
     case GameStatuses.WELCOME:
-      return `<span class="status-icon">👑</span> Click <strong>"New Game"</strong> to start a puzzle.`;
+      return `<div class="message-row"><span class="status-icon-raised">👑</span> Click <strong>"New Game"</strong> to start a puzzle.</div>`;
     case GameStatuses.PLAYING:
       return '';
     case GameStatuses.WON:
-      return `<span class="status-icon">🎉</span> <b>Congratulations, you won!</b> <span class="status-icon">🎉</span><br>Completion time: <strong>${formattedTimer.value}</strong>`;
+      return `<div class="message-col"><div class="message-row"><span class="status-icon-raised">🎉</span> <b>Congratulations, you won!</b> <span class="status-icon-raised">🎉</span></div><div class="message-row">Completion time:&nbsp;<strong>${formattedTimer.value}</strong></div></div>`;
     case GameStatuses.GENERATING:
-      return `<span class="status-icon">⏳</span> Generating puzzle<span class="loading-dots">...</span>`;
+      return `<div class="message-row"><span class="status-icon">⏳</span> Generating puzzle<span class="loading-dots">...</span></div>`;
     case GameStatuses.GENERATING_ERROR:
-      return `<span class="status-icon">❌</span> Error generating puzzle. Please try again.`;
+      return `<div class="message-row"><span class="status-icon">❌</span> Error generating puzzle. Please try again.</div>`;
     case GameStatuses.BOARD_GENERATED:
-      return `<span class="status-icon">✅</span> Board generated! Click <strong>"Start Game"</strong> to begin playing, or <strong>"New Game"</strong> to generate a new puzzle.`;
+      return `<div class="message-row"><span class="status-icon">✅</span> Board generated! Click <strong>"Start Game"</strong> to begin playing, or <strong>"New Game"</strong> to generate a new puzzle.</div>`;
     default:
       return '';
   }
