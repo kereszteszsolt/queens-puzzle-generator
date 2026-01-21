@@ -302,7 +302,8 @@ onBeforeUnmount(() => {
   gap: 16px;
   height: 100%;
   /* make the container shrink to its content width and center it horizontally */
-  width: fit-content;
+  width: 100%;
+  max-width: min(95vw, 600px);
   margin-inline: auto;
 }
 

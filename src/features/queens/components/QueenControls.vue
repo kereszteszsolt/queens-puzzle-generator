@@ -40,7 +40,7 @@ const selectedSize = ref<number>(-2);
       <span class="btn-text">Start Game</span>
     </button>
     <button
-        v-if="gameStatus === GameStatuses.PLAYING"
+        v-if="gameStatus === GameStatuses.PLAYING || gameStatus === GameStatuses.WON"
         class="btn-undo" @click="$emit('undo')" :disabled="!canUndo">
       <span class="btn-icon">↶</span>
       <span class="btn-text">Undo</span>
