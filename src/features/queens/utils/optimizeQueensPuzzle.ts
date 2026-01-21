@@ -5,6 +5,7 @@ import {countQueensSolutions} from "./countQueensSolutions.ts";
 import {getShuffledArray} from "./getShuffledArray.ts";
 import {getTRBLNeighborIndices} from "./getTRBLNeighboursIndices.ts";
 import type {GenMessage} from "../models/GenMessage.ts";
+import {fillBoardWithColors} from "./fillBoardWithColors.ts";
 
 export interface OptimizeOptions {
     timeLimitMs?: number      // default: 180_000 (3 minutes)
@@ -53,11 +54,40 @@ export async function optimizeQueensPuzzle(
     if (!validateColorRegions(board, size)) {
         throw new Error("optimizeQueensPuzzle: initial board has invalid color regions.");
     }
-
-    let solution = countQueensSolutions(board, size);
-
     const timeLimit = options.timeLimitMs ?? 180_000; // 3 minutes
     const iterationLimit = options.iterationLimit ?? 2_000_000;
+
+    let solutions: number = 0;
+    let refillIterations = 0;
+    const STRATEGIC_LIMIT = 1_000_000;
+    const REFILL_LIMIT = 10;
+    if (size > 12) {
+        solutions = STRATEGIC_LIMIT + 1;
+        while (solutions > STRATEGIC_LIMIT && refillIterations <= REFILL_LIMIT) {
+            refillIterations++;
+            solutions = countQueensSolutions(board, size, STRATEGIC_LIMIT + 1);
+            if (solutions > STRATEGIC_LIMIT) {
+                board = fillBoardWithColors(queens, size);
+            }  else {
+                break;
+            }
+            cb({
+                iteration: 0,
+                solutionsCount: solutions,
+                elapsedTimeMs: Date.now() - startTime,
+                currentBoard: board,
+                timeLimitMs: timeLimit,
+                iterationLimit: iterationLimit,
+                successRate: 0,
+                targetMaxSolutions: targetMaxSolutions,
+                size: size
+            });
+            // Yield to event loop periodically to allow UI updates
+            await new Promise(resolve => setTimeout(resolve, 0));
+            console.debug(`Refill iteration ${refillIterations}, solutions: ${solutions}, startTime: ${(Date.now() - startTime) / 1000} s`);
+        }
+    }
+    solutions = countQueensSolutions(board, size);
 
     let iterations = 0;
 
@@ -66,10 +96,10 @@ export async function optimizeQueensPuzzle(
     let successfulChanges = 0;
     let failedChanges = 0;
 
-    while (solution > targetMaxSolutions && iterations < iterationLimit  && (Date.now() - startTime) < timeLimit) {
+    while (solutions > targetMaxSolutions && iterations < iterationLimit  && (Date.now() - startTime) < timeLimit) {
         cb({
             iteration: iterations,
-            solutionsCount: solution,
+            solutionsCount: solutions,
             elapsedTimeMs: Date.now() - startTime,
             currentBoard: board,
             timeLimitMs: timeLimit,
@@ -81,27 +111,27 @@ export async function optimizeQueensPuzzle(
         iterations++;
 
         // Yield to event loop periodically to allow UI updates
-        if (iterations % 10 === 0) {
+        if (iterations % 10 === 0 || iterations === 1) {
             await new Promise(resolve => setTimeout(resolve, 0));
         }
 
-        let newBoard = getChangeSamples(board, size, solution);
+        let newBoard = getChangeSamples(board, size, solutions);
 
-        let result = tryRecolor(newBoard, size, queenIdx, solution);
+        let result = tryRecolor(newBoard, size, queenIdx, solutions);
         if (result.validChange) {
             failedAttempts = 0;
             successfulChanges++;
             // update if improved
-            solution = result.newSolutions!;
+            solutions = result.newSolutions!;
             board = newBoard;
             // record history
             history.push({
                 board: board.slice(),
-                solutions: solution
+                solutions: solutions
             });
 
-            if (solution <= targetMaxSolutions) {
-                return {board, solutions: solution, iterations, stoppedBy: "targetReached", size, elapsedTimeMs: Date.now() - startTime, iterationLimit, timeLimitMs: timeLimit, targetMaxSolutions};
+            if (solutions <= targetMaxSolutions) {
+                return {board, solutions: solutions, iterations, stoppedBy: "targetReached", size, elapsedTimeMs: Date.now() - startTime, iterationLimit, timeLimitMs: timeLimit, targetMaxSolutions};
             }
             continue;
         }
@@ -114,7 +144,7 @@ export async function optimizeQueensPuzzle(
             if (history.length > 0) {
                 const snapshot = history[history.length - 1]!;
                 board = snapshot.board.slice();
-                solution = snapshot.solutions
+                solutions = snapshot.solutions
                 history.pop();
             }
         }
@@ -123,7 +153,7 @@ export async function optimizeQueensPuzzle(
     const stoppedBy: OptimizeResult["stoppedBy"] =
         iterations >= iterationLimit ? "iterationLimit" : "timeLimit";
 
-    return {board: board, solutions: solution, iterations, stoppedBy, size, targetMaxSolutions, iterationLimit, timeLimitMs: timeLimit, elapsedTimeMs: Date.now() - startTime};
+    return {board: board, solutions: solutions, iterations, stoppedBy, size, targetMaxSolutions, iterationLimit, timeLimitMs: timeLimit, elapsedTimeMs: Date.now() - startTime};
 }
 
 function tryRecolor(
