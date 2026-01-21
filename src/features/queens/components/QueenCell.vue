@@ -25,16 +25,14 @@ const emit = defineEmits<{
 const bgClass = computed(() => `bg-cell-${props.color.toString().padStart(2, '0')}`);
 const bgClassConflict = computed(() => `bg-cell-${props.color.toString().padStart(2, '0')}-conflict`);
 const borderStyles = computed(() => ({
-  borderTop: props.borders.top ? '2px solid black' : '1px solid black',
-  borderRight: props.borders.right ? '2px solid black' : '1px solid black',
-  borderBottom: props.borders.bottom ? '2px solid black' : '1px solid black',
-  borderLeft: props.borders.left ? '2px solid black' : '1px solid black',
+  borderTop: props.borders.top ? '2px solid black' : '0.5px solid rgba(0,0,0,0.3)',
+  borderRight: props.borders.right ? '2px solid black' : '0.5px solid rgba(0,0,0,0.3)',
+  borderBottom: props.borders.bottom ? '2px solid black' : '0.5px solid rgba(0,0,0,0.3)',
+  borderLeft: props.borders.left ? '2px solid black' : '0.5px solid rgba(0,0,0,0.3)',
 }));
 const cellStyle = computed(() => {
   const base: Record<string, string> = {
     ...borderStyles.value as Record<string, string>,
-    width: '45px',
-    height: '45px',
   };
   if (props.hasConflict) {
     base.backgroundImage = 'repeating-linear-gradient(45deg, transparent, transparent 4px, rgba(0,0,0,0.2) 4px, rgba(0,0,0,0.2) 8px)';
@@ -77,12 +75,15 @@ function handlePointerUp(e: PointerEvent) {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 21px;
+  font-size: clamp(14px, 4vw, 21px);
   color: black;
   user-select: none;
+  aspect-ratio: 1 / 1;
+  box-sizing: border-box;
+  position: relative;
 }
 .crown {
-  font-size: 22px;
+  font-size: clamp(15px, 4.5vw, 22px);
   animation: crown-bounce 2s infinite;
   transform-origin: center;
 }

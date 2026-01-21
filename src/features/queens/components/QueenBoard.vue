@@ -2,6 +2,7 @@
 import type {CellState} from "../models/CellState.ts";
 import QueenCell from "./QueenCell.vue";
 import {GameStatuses} from "../models/GameStatus.ts";
+import {computed} from "vue";
 
 const props = defineProps<{
   queensPuzzle: number[][];
@@ -16,6 +17,8 @@ const emit = defineEmits<{
   (e: 'queen-cell-pointerenter', row: number, col: number): void;
   (e: 'queen-cell-pointerup', row: number, col: number): void;
 }>();
+
+const gridSize = computed(() => props.queensPuzzle.length);
 
 const getCellBorders = (row: number, col: number) => ({
   top: row > 0 && props.queensPuzzle[row]![col]! !== props.queensPuzzle[row - 1]![col]!,
@@ -36,40 +39,54 @@ const handleQueenCellPointerEnter = (row: number, col: number) => {
 </script>
 
 <template>
-  <div class="queen-board" :class="{'blur': gameStatus === GameStatuses.BOARD_GENERATED}">
-    <div v-for="(row, rowIndex) in props.queensPuzzle" :key="rowIndex" class="row">
-      <QueenCell
-          v-for="(cell, colIndex) in row"
-          :key="colIndex"
-          :value="boardState[rowIndex]![colIndex]!.data"
-          :color="cell"
-          :row="rowIndex"
-          :col="colIndex"
-          :borders="getCellBorders(rowIndex, colIndex)"
-          :has-conflict="conflictCells[rowIndex]![colIndex]!"
-          :is-won="props.isWon"
-          @queen-cell-pointerdown="handleQueenCellPointerDown"
-          @queen-cell-pointerenter="handleQueenCellPointerEnter"
-          @queen-cell-pointerup="handleQueenCellPointerUp"
-      />
+  <div class="queen-board-wrapper">
+    <div class="queen-board"
+         :class="{'blur': gameStatus === GameStatuses.BOARD_GENERATED}"
+         :style="{ gridTemplateColumns: `repeat(${gridSize}, 1fr)` }">
+      <template v-for="(row, rowIndex) in props.queensPuzzle" :key="rowIndex">
+        <QueenCell
+            v-for="(cell, colIndex) in row"
+            :key="`${rowIndex}-${colIndex}`"
+            :value="boardState[rowIndex]![colIndex]!.data"
+            :color="cell"
+            :row="rowIndex"
+            :col="colIndex"
+            :borders="getCellBorders(rowIndex, colIndex)"
+            :has-conflict="conflictCells[rowIndex]![colIndex]!"
+            :is-won="props.isWon"
+            @queen-cell-pointerdown="handleQueenCellPointerDown"
+            @queen-cell-pointerenter="handleQueenCellPointerEnter"
+            @queen-cell-pointerup="handleQueenCellPointerUp"
+        />
+      </template>
     </div>
   </div>
 </template>
 
 <style scoped>
+.queen-board-wrapper {
+  max-width: min(95vw, 600px);
+  width: 100%;
+  margin: 0 auto;
+}
+
 .queen-board {
-  display: flex;
-  flex-direction: column;
-  border: 4px solid black;
+  display: grid;
+  border: 3px solid black;
+  overflow: hidden;
+  border-radius: 2px;
+  width: 100%;
 }
 
 .row {
-  display: flex;
+  display: contents;
 }
 
+/* Blur hatás - looking through water/wrong glasses effect (pure CSS) */
 .queen-board.blur {
   position: relative;
   z-index: 1000;
+  /* Uneven blur + chromatic aberration effect like wrong glasses */
   filter: blur(2.5px) contrast(1.05) saturate(1.1);
   opacity: 0.9;
   animation: glassDistort 2.5s ease-in-out infinite;
@@ -90,7 +107,7 @@ const handleQueenCellPointerEnter = (row: number, col: number) => {
   content: '';
   position: absolute;
   inset: 0;
-
+  /* Simulate refraction with color shift */
   background: linear-gradient(
       135deg,
       rgba(255, 0, 0, 0.03) 0%,
