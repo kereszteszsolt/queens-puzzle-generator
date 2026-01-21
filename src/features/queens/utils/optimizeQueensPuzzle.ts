@@ -84,7 +84,6 @@ export async function optimizeQueensPuzzle(
             });
             // Yield to event loop periodically to allow UI updates
             await new Promise(resolve => setTimeout(resolve, 0));
-            console.debug(`Refill iteration ${refillIterations}, solutions: ${solutions}, startTime: ${(Date.now() - startTime) / 1000} s`);
         }
     }
     solutions = countQueensSolutions(board, size);
@@ -137,7 +136,6 @@ export async function optimizeQueensPuzzle(
         }
         failedAttempts++;
         failedChanges++;
-        console.debug(`Success rate: ${(successfulChanges / (successfulChanges + failedChanges) * 100).toFixed(2)}%`);
         if (failedAttempts >= size*size) {
             failedAttempts = 0;
             // revert to a previous state
