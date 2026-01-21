@@ -1,12 +1,14 @@
 import type {Ref} from "vue";
 import {EMPTY, QUEEN, X_MARK} from "../constants";
 import type {CellState} from "../models/CellState.ts";
+import {GameStatuses} from "../models/GameStatus.ts";
 
 export function usePointerInteractions(
     boardState: Ref<CellState[][]>,
     queensChallenge: Ref<number[][]>,
     pushHistorySnapshot: () => void,
     undo: () => void,
+    gameStatus: Ref<string>,
 ) {
     let isPointerDown = false;
     let paintActive = false;
@@ -63,6 +65,11 @@ export function usePointerInteractions(
     }
 
     function handlePointerDown(r: number, c: number) {
+        // Prevent interactions when game is not in playing or won state
+        if (gameStatus.value !== GameStatuses.PLAYING && gameStatus.value !== GameStatuses.WON) {
+            return;
+        }
+
         const now = Date.now();
         const isDouble = lastTapCell && lastTapCell[0] === r && lastTapCell[1] === c && (now - lastTapTime) <= DOUBLE_CLICK_MS;
 
@@ -115,6 +122,11 @@ export function usePointerInteractions(
     }
 
     function handlePointerEnter(r: number, c: number) {
+        // Prevent interactions when game is not in playing or won state
+        if (gameStatus.value !== GameStatuses.PLAYING && gameStatus.value !== GameStatuses.WON) {
+            return;
+        }
+
         if (!isPointerDown) return;
         if (paintActive && boardState.value[r]![c]!.data === EMPTY) {
             boardState.value[r]![c]! = {data: X_MARK, lastModified: Date.now()};

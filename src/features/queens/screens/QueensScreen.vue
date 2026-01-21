@@ -23,7 +23,6 @@ const generationResult: Ref<OptimizeResult | null> = ref(null);
 
 const size = ref(8);
 let maxSolutions = 10;
-let isGenerating = ref(false);
 let genStateMessage: Ref<GenMessage | null> = ref(null);
 let statusMessages = ref<string>('');
 let finalGenMessage = ref<string>('');
@@ -35,7 +34,7 @@ const {
   handlePointerUp,
   handlePointerEnter,
   handleGlobalPointerUp
-} = usePointerInteractions(boardState, queensPuzzle, pushHistorySnapshot, undo);
+} = usePointerInteractions(boardState, queensPuzzle, pushHistorySnapshot, undo, gameStatus);
 const {timer, formattedTimer, startTimer, stopTimer, resetTimer} = useTimer();
 const {win} = useWin(boardState, queensPuzzle);
 const {conflicts} = useConflicts(boardState, queensPuzzle);
@@ -135,14 +134,14 @@ async function newQueensPuzzle(payload: { size: number; maxSolutions: number }):
   const {size: newSize, maxSolutions: newMaxSolutions} = payload;
   showChooseModal.value = false;
 
-  if (isGenerating.value) {
+  if (gameStatus.value === GameStatuses.GENERATING) {
     // Prevent multiple simultaneous puzzle generations
     return;
   }
 
   stopTimer();
   resetTimer();
-  isGenerating.value = true;
+  resetBoard();
   gameStatus.value = GameStatuses.GENERATING;
   generationResult.value = null;
 
@@ -164,7 +163,6 @@ async function newQueensPuzzle(payload: { size: number; maxSolutions: number }):
                     <p class="card-subtitle">${(error as Error).message}</p>
                     <p class="card-note">Please try again with different settings.</p>`);
   } finally {
-    isGenerating.value = false;
     gameStatus.value = GameStatuses.BOARD_GENERATED
     setFinalGenMsg(buildFinalGenMessage(generationResult.value!));
     startTimer();
