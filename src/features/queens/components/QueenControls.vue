@@ -24,44 +24,59 @@ const selectedSize = ref<number>(-2);
   <div class="board-controls">
     <button
         v-if="gameStatus === GameStatuses.WON || gameStatus === GameStatuses.PLAYING || gameStatus === GameStatuses.WELCOME || gameStatus === GameStatuses.BOARD_GENERATED"
-        class="btn-generate" @click="$emit('newGame', selectedSize)">
+        class="btn-generate"
+        @click="$emit('newGame', selectedSize)"
+        title="Generate a new puzzle">
       <span class="btn-icon">🎲</span>
       <span class="btn-text">New Game</span>
     </button>
     <button
         v-if="gameStatus === GameStatuses.WON"
-        class="btn-replay" @click="$emit('replay')">
+        class="btn-replay"
+        @click="$emit('replay')"
+        title="Replay the current puzzle">
       <span class="btn-icon">🔄</span>
       <span class="btn-text">Replay</span>
     </button>
     <button
         v-if="gameStatus === GameStatuses.BOARD_GENERATED"
-        class="btn-start" @click="$emit('startGame')">
+        class="btn-start"
+        @click="$emit('startGame')"
+        title="Start playing the puzzle">
       <span class="btn-icon">🎮</span>
       <span class="btn-text">Start Game</span>
     </button>
     <button
         v-if="gameStatus === GameStatuses.PLAYING || gameStatus === GameStatuses.WON"
-        class="btn-undo" @click="$emit('undo')" :disabled="!canUndo">
+        class="btn-undo"
+        @click="$emit('undo')"
+        :disabled="!canUndo"
+        title="Undo last move">
       <span class="btn-icon">↶</span>
       <span class="btn-text">Undo</span>
     </button>
     <button
         v-if="gameStatus === GameStatuses.PLAYING"
-        class="btn-clear" @click="$emit('clearBoard')" :disabled="!canUndo">
+        class="btn-clear"
+        @click="$emit('clearBoard')"
+        :disabled="!canUndo"
+        title="Clear all placed queens">
       <span class="btn-icon">🧹</span>
       <span class="btn-text">Clear Board</span>
     </button>
     <button
         v-if="gameStatus === GameStatuses.PLAYING"
-        class="btn-reset" @click="$emit('resetGame')">
+        class="btn-reset"
+        @click="$emit('resetGame')"
+        title="Reset to initial puzzle state">
       <span class="btn-icon">🔃</span>
       <span class="btn-text">Reset Game</span>
     </button>
     <button
         v-if="gameStatus === GameStatuses.PLAYING"
         class="btn-shuffle"
-        @click="$emit('shuffleColors')">
+        @click="$emit('shuffleColors')"
+        title="Shuffle region colors">
       <span class="btn-icon">🎨</span>
       <span class="btn-text">Shuffle Colors</span>
     </button>
@@ -72,9 +87,10 @@ const selectedSize = ref<number>(-2);
 .board-controls {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
-  justify-content: space-between;
+  gap: 0.75rem;
+  justify-content: stretch;
   width: 100%;
+  max-width: 100%;
 }
 
 .board-controls:has(button:only-child) {
@@ -84,15 +100,19 @@ const selectedSize = ref<number>(-2);
 .board-controls button {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  font-size: 1rem;
+  padding: 0.625rem 1rem;
+  font-size: 0.95rem;
   font-weight: bold;
   color: white;
   border: 1px solid transparent;
   border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.2s ease;
+  white-space: nowrap;
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 /* Ensure icon and text are vertically centered and use consistent line-height */
@@ -107,10 +127,108 @@ const selectedSize = ref<number>(-2);
   font-size: 1.125rem; /* slightly larger for icon clarity */
   width: 1.25rem;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .board-controls button .btn-text {
   /* keep default font-size from parent, ensures consistent baseline */
+}
+
+/* Responsive Design */
+
+/* Large screens - 3 buttons per row */
+@media (min-width: 1024px) {
+  .board-controls {
+    gap: 1rem;
+  }
+
+  .board-controls button {
+    padding: 0.75rem 1.25rem;
+    font-size: 1rem;
+    flex: 1 1 calc(33.333% - 0.75rem);
+    max-width: calc(33.333% - 0.75rem);
+  }
+
+  /* Single button takes full width */
+  .board-controls:has(button:only-child) button {
+    flex: 0 1 auto;
+    max-width: fit-content;
+  }
+}
+
+/* Medium screens - tablets, 2-3 buttons per row */
+@media (max-width: 1023px) and (min-width: 640px) {
+  .board-controls {
+    gap: 0.75rem;
+  }
+
+  .board-controls button {
+    padding: 0.625rem 1rem;
+    font-size: 0.95rem;
+    flex: 1 1 calc(33.333% - 0.5rem);
+    max-width: calc(33.333% - 0.5rem);
+  }
+
+  /* Single button takes auto width */
+  .board-controls:has(button:only-child) button {
+    flex: 0 1 auto;
+    max-width: fit-content;
+  }
+}
+
+/* Small screens - mobile, 2 buttons per row */
+@media (max-width: 639px) {
+  .board-controls {
+    gap: 0.5rem;
+  }
+
+  .board-controls button {
+    padding: 0.5rem 0.875rem;
+    font-size: 0.9rem;
+    flex: 1 1 calc(50% - 0.25rem);
+    max-width: calc(50% - 0.25rem);
+  }
+
+  .board-controls button .btn-icon {
+    font-size: 1rem;
+    width: 1.125rem;
+  }
+
+  /* Single button takes auto width */
+  .board-controls:has(button:only-child) button {
+    flex: 0 1 auto;
+    max-width: fit-content;
+  }
+}
+
+/* Extra small screens - very narrow devices, 1-2 buttons per row */
+@media (max-width: 400px) {
+  .board-controls {
+    gap: 0.5rem;
+  }
+
+  .board-controls button {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+    gap: 0.375rem;
+    flex: 1 1 calc(50% - 0.25rem);
+    max-width: calc(50% - 0.25rem);
+  }
+
+  .board-controls button .btn-text {
+    font-size: 0.85rem;
+  }
+
+  .board-controls button .btn-icon {
+    font-size: 1rem;
+    width: 1rem;
+  }
+
+  /* Single button takes auto width */
+  .board-controls:has(button:only-child) button {
+    flex: 0 1 auto;
+    max-width: fit-content;
+  }
 }
 
 
