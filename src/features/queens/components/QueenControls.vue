@@ -47,24 +47,6 @@ const selectedSize = ref<number>(-2);
       <span class="btn-text">Start Game</span>
     </button>
     <button
-        v-if="gameStatus === GameStatuses.PLAYING || gameStatus === GameStatuses.WON"
-        class="btn-undo"
-        @click="$emit('undo')"
-        :disabled="!canUndo"
-        title="Undo last move">
-      <span class="btn-icon">↶</span>
-      <span class="btn-text">Undo</span>
-    </button>
-    <button
-        v-if="gameStatus === GameStatuses.PLAYING"
-        class="btn-clear"
-        @click="$emit('clearBoard')"
-        :disabled="!canUndo"
-        title="Clear all placed queens">
-      <span class="btn-icon">🧹</span>
-      <span class="btn-text">Clear Board</span>
-    </button>
-    <button
         v-if="gameStatus === GameStatuses.PLAYING"
         class="btn-reset"
         @click="$emit('resetGame')"
@@ -79,6 +61,24 @@ const selectedSize = ref<number>(-2);
         title="Shuffle region colors">
       <span class="btn-icon">🎨</span>
       <span class="btn-text">Shuffle Colors</span>
+    </button>
+    <button
+        v-if="gameStatus === GameStatuses.PLAYING"
+        class="btn-clear"
+        @click="$emit('clearBoard')"
+        :disabled="!canUndo"
+        title="Clear all placed queens">
+      <span class="btn-icon">🧹</span>
+      <span class="btn-text">Clear Board</span>
+    </button>
+    <button
+        v-if="gameStatus === GameStatuses.PLAYING || gameStatus === GameStatuses.WON"
+        class="btn-undo"
+        @click="$emit('undo')"
+        :disabled="!canUndo"
+        title="Undo last move">
+      <span class="btn-icon">↶</span>
+      <span class="btn-text">Undo</span>
     </button>
   </div>
 </template>
