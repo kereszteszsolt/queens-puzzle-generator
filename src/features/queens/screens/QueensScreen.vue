@@ -25,7 +25,7 @@ const generationResult: Ref<OptimizeResult | null> = ref(null);
 const size = ref(8);
 let maxSolutions = 10;
 let genStateMessage: Ref<GenMessage | null> = ref(null);
-let errorMessage = ref<string>('');
+let error = ref<Error | null>(null);
 let gameStatus: Ref<GameStatus> = ref(GameStatuses.WELCOME);
 
 const {boardState, history, undo, clearBoard, resetBoard, pushHistorySnapshot} = useGameState(size)
@@ -89,11 +89,6 @@ function setGeneratingMsg(data: GenMessage) {
 }
 
 
-function setErrorMsg(message: string) {
-  errorMessage.value = message;
-}
-
-
 async function newQueensPuzzle(payload: { size: number; maxSolutions: number }): Promise<void> {
   const {size: newSize, maxSolutions: newMaxSolutions} = payload;
   showChooseModal.value = false;
@@ -108,7 +103,7 @@ async function newQueensPuzzle(payload: { size: number; maxSolutions: number }):
   resetBoard();
   gameStatus.value = GameStatuses.GENERATING;
   genStateMessage.value = null;
-  errorMessage.value = '';
+  error.value = null;
   generationResult.value = null;
   queensPuzzle.value = [];
 
@@ -124,12 +119,10 @@ async function newQueensPuzzle(payload: { size: number; maxSolutions: number }):
     queensPuzzle.value = int8FlatMatrixTo2D(generationResult.value.board, size.value);
     resetBoard();
     gameStatus.value = GameStatuses.BOARD_GENERATED;
-  } catch (error) {
-    console.error("Error generating new puzzle:", error);
+  } catch (err) {
+    console.error("Error generating new puzzle:", err);
     gameStatus.value = GameStatuses.GENERATING_ERROR;
-    setErrorMsg(`<h3 class="card-title error-title">❌ Puzzle Generation Failed</h3>
-                    <p class="card-subtitle">${(error as Error).message}</p>
-                    <p class="card-note">Please try again with different settings.</p>`);
+    error.value = err as Error;
   } finally {
     startTimer();
   }
@@ -201,7 +194,7 @@ onBeforeUnmount(() => {
         :genStatusMessage="genStateMessage"
         :gameStatus="gameStatus"
         :generationResult="generationResult"
-        :errorMessage="errorMessage"
+        :error="error"
     ></generation-info>
     <div v-if="gameStatus === GameStatuses.WELCOME" class="info-card welcome-card">
       <div class="card-icon">👑</div>
