@@ -135,17 +135,31 @@ watch(
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 999px;
-  background-color: var(--color-secondary-400);
+  background: linear-gradient(
+      135deg,
+      var(--color-primary-400) 0%,
+      var(--color-primary) 50%,
+      var(--color-primary-700) 100%
+  );
   display: grid;
   place-items: center;
-  border: 2px solid var(--color-tertiary);
-  box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
-  transition: border-color 0.2s;
+  border: 2px solid var(--color-tertiary-400);
+  box-shadow:
+      0 2px 8px rgb(255 127 80 / 0.35),
+      inset 0 1px 2px rgb(255 255 255 / 0.25);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s;
   user-select: none;
+  color: var(--color-neutral);
+  font-size: 1.25rem;
+  text-shadow: 0 1px 2px rgb(0 0 0 / 0.2);
 }
 
 .navbar-brand:hover .navbar-logo {
-  border-color: var(--color-secondary-400);
+  border-color: var(--color-tertiary);
+  transform: scale(1.08) rotate(-8deg);
+  box-shadow:
+      0 4px 12px rgb(255 127 80 / 0.45),
+      inset 0 1px 2px rgb(255 255 255 / 0.3);
 }
 
 .navbar-title {
