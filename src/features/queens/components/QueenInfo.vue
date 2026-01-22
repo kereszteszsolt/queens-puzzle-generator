@@ -1,24 +1,48 @@
 <script setup lang="ts">
+import {computed} from "vue";
+import {type GameStatus, GameStatuses} from "../models/GameStatus.ts";
 
-import {GameStatuses} from "../models/GameStatus.ts";
+const props = defineProps<{
+  totalPossibleSolutions: number;
+  boardSize: number;
+  formattedTimer: string;
+  gameStatus: GameStatus;
+}>();
 
-defineProps({
-  totalPossibleSolutions: Number,
-  boardSize: Number,
-  formattedTimer: String,
-  generatingMessage: String,
-  gameStatus: String,
+const statusMessage = computed(() => {
+  switch (props.gameStatus) {
+    case GameStatuses.WELCOME:
+      return { icon: '👑', iconClass: 'icon-crown', text: 'Click "New Game" to start a puzzle.' };
+    case GameStatuses.WON:
+      return { icon: '🎉', iconClass: 'icon-party', text: 'Congratulations, ', textEnd: 'you won!', subtext: `Completion time: ${props.formattedTimer}`, trailingIcon: true };
+    case GameStatuses.GENERATING:
+      return { icon: '⏳', iconClass: 'icon-hourglass', text: 'Generating puzzle', loading: true };
+    case GameStatuses.GENERATING_ERROR:
+      return { icon: '❌', iconClass: 'icon-error', text: 'Error generating puzzle. Please try again.' };
+    case GameStatuses.BOARD_GENERATED:
+      return { icon: '✅', iconClass: 'icon-check', text: 'Board generated! Click "Start Game" to begin playing, or "New Game" to generate a new puzzle.' };
+    default:
+      return null;
+  }
 });
 </script>
 
 <template>
   <div v-if="gameStatus === GameStatuses.PLAYING" class="board-info">
-    <div><strong>Board:</strong> {{boardSize}}x{{boardSize}}</div>
+    <div><strong>Board:</strong> {{ boardSize }}x{{ boardSize }}</div>
     <div><strong>Possible solutions:</strong> {{ totalPossibleSolutions }}</div>
     <div><strong>Timer:</strong> {{ formattedTimer }}</div>
   </div>
-  <div v-else class="board-info board-info-message">
-    <div v-html="generatingMessage"></div>
+  <div v-else-if="statusMessage" class="board-info board-info-message">
+    <div class="message-content">
+      <div class="message-row">
+        <span class="status-icon" :class="statusMessage.iconClass">{{ statusMessage.icon }}</span>
+        <span>{{ statusMessage.text }}</span><span v-if="statusMessage.loading" class="loading-dots">...</span><span v-if="statusMessage.trailingIcon" class="trailing-group">{{ statusMessage.textEnd }}<span class="status-icon" :class="statusMessage.iconClass">{{ statusMessage.icon }}</span></span>
+      </div>
+      <div v-if="statusMessage.subtext" class="message-row subtext">
+        <strong>{{ statusMessage.subtext }}</strong>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -43,44 +67,54 @@ defineProps({
   line-height: 1.6;
 }
 
-/* Deep selectors for dynamically injected HTML */
-.board-info-message :deep(.message-row) {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.board-info-message :deep(.message-row > *) {
-  flex-shrink: 0;
-}
-
-.board-info-message :deep(.message-column) {
+.message-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  gap: 4px;
 }
 
-.board-info-message :deep(.status-icon) {
-  font-size: 1.1em;
-  margin-right: 2px;
+.message-row {
+  text-align: center;
 }
 
-.board-info-message :deep(.status-icon-raised) {
-  font-size: 1.1em;
-  margin-left: 2px;
-  margin-right: 2px;
-  position: relative;
-  top: -2px;
-}
-
-.board-info-message :deep(strong) {
+.message-row.subtext {
   color: #0f1b3a;
 }
 
-.board-info-message :deep(.loading-dots) {
+.status-icon {
+  font-size: 1.1em;
+  position: relative;
+}
+
+.trailing-group {
+  display: inline;
+  white-space: nowrap;
+}
+
+.status-icon.icon-crown {
+  top: -2px;
+}
+
+.status-icon.icon-party {
+  top: -2px;
+  margin-left: -1px;
+  margin-right: -1px;
+}
+
+.status-icon.icon-hourglass {
+  top: 0;
+}
+
+.status-icon.icon-error {
+  top: -2px;
+}
+
+.status-icon.icon-check {
+  top: 0;
+}
+
+.loading-dots {
   display: inline-block;
   animation: pulse 1.2s infinite;
 }

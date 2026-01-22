@@ -1,12 +1,85 @@
 <script setup lang="ts">
 import type {GenMessage} from "../models/GenMessage.ts";
 import {GameStatuses} from "../models/GameStatus.ts";
+import type {OptimizeResult} from "../utils/optimizeQueensPuzzle.ts";
+import {computed} from "vue";
 
-defineProps<{
+const props = defineProps<{
   genStatusMessage: GenMessage | null;
   gameStatus: string;
-  finalGenMessage: string;
+  generationResult: OptimizeResult | null;
+  errorMessage?: string;
 }>();
+
+function formatStopReason(reason: OptimizeResult["stoppedBy"]): string {
+  switch (reason) {
+    case "targetReached":
+      return "🎯 Target Reached";
+    case "timeLimit":
+      return "⏱️ Time Limit";
+    case "iterationLimit":
+      return "🔁 Iteration Limit";
+    default:
+      return "❓ Unknown";
+  }
+}
+
+function formatStopReasonDetailed(reason: OptimizeResult["stoppedBy"]): string {
+  switch (reason) {
+    case "targetReached":
+      return "🎯 Target reached successfully";
+    case "timeLimit":
+      return "⏱️ Stopped due to time limit";
+    case "iterationLimit":
+      return "🔁 Iteration limit reached";
+    default:
+      return "❓ Unknown reason";
+  }
+}
+
+const finalGenMessage = computed(() => {
+  if (!props.generationResult) return '';
+
+  const result = props.generationResult;
+  return `
+    <h3 class="card-title">✅ Board Generation Completed</h3>
+    <p class="card-subtitle">${formatStopReasonDetailed(result.stoppedBy)}</p>
+    <div class="stats-grid">
+      <div class="stat-item">
+        <span class="stat-label">Board Size</span>
+        <span class="stat-value">${result.size} × ${result.size}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Solutions</span>
+        <span class="stat-value">${result.solutions}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Target</span>
+        <span class="stat-value">≤ ${result.targetMaxSolutions}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Elapsed Time</span>
+        <span class="stat-value">${(result.elapsedTimeMs / 1000).toFixed(1)}s</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Iterations</span>
+        <span class="stat-value">${result.iterations.toLocaleString()}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Time Limit</span>
+        <span class="stat-value">${result.timeLimitMs / 1000}s</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Iteration Limit</span>
+        <span class="stat-value">${result.iterationLimit.toLocaleString()}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Stopped By</span>
+        <span class="stat-value">${formatStopReason(result.stoppedBy)}</span>
+      </div>
+    </div>
+  `;
+});
 </script>
 
 <template>
@@ -64,7 +137,7 @@ defineProps<{
 
     <!-- Error state -->
     <div v-if="gameStatus === GameStatuses.GENERATING_ERROR" class="generation-content error">
-      <div v-html="finalGenMessage"></div>
+      <div v-html="errorMessage"></div>
     </div>
   </div>
 </template>

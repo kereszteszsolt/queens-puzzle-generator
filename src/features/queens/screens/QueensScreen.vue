@@ -25,8 +25,7 @@ const generationResult: Ref<OptimizeResult | null> = ref(null);
 const size = ref(8);
 let maxSolutions = 10;
 let genStateMessage: Ref<GenMessage | null> = ref(null);
-let statusMessages = ref<string>('');
-let finalGenMessage = ref<string>('');
+let errorMessage = ref<string>('');
 let gameStatus: Ref<GameStatus> = ref(GameStatuses.WELCOME);
 
 const {boardState, history, undo, clearBoard, resetBoard, pushHistorySnapshot} = useGameState(size)
@@ -89,66 +88,9 @@ function setGeneratingMsg(data: GenMessage) {
   genStateMessage.value = data;
 }
 
-function setStatusMsg(message: string) {
-  statusMessages.value = message;
-}
 
-function setFinalGenMsg(message: string) {
-  finalGenMessage.value = message;
-}
-
-function formatStopReason(reason: OptimizeResult["stoppedBy"]) {
-  switch (reason) {
-    case "targetReached":
-      return "🎯 Target reached";
-    case "timeLimit":
-      return "⏱️ Stopped due to time limit";
-    case "iterationLimit":
-      return "🔁 Iteration limit reached";
-    default:
-      return "Unknown reason";
-  }
-}
-
-function buildFinalGenMessage(result: OptimizeResult): string {
-  return `
-    <h3 class="card-title">✅ Board Generation Completed</h3>
-    <p class="card-subtitle">${formatStopReason(result.stoppedBy)}</p>
-    <div class="stats-grid">
-      <div class="stat-item">
-        <span class="stat-label">Board Size</span>
-        <span class="stat-value">${result.size} × ${result.size}</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-label">Solutions</span>
-        <span class="stat-value">${result.solutions}</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-label">Target</span>
-        <span class="stat-value">≤ ${result.targetMaxSolutions}</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-label">Elapsed Time</span>
-        <span class="stat-value">${(result.elapsedTimeMs / 1000).toFixed(1)}s</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-label">Iterations</span>
-        <span class="stat-value">${result.iterations.toLocaleString()}</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-label">Time Limit</span>
-        <span class="stat-value">${result.timeLimitMs / 1000}s</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-label">Iteration Limit</span>
-        <span class="stat-value">${result.iterationLimit.toLocaleString()}</span>
-      </div>
-       <div class="stat-item">
-        <span class="stat-label">Stopped By</span>
-        <span class="stat-value">${result.stoppedBy.toString()}</span>
-      </div>
-    </div>
-  `;
+function setErrorMsg(message: string) {
+  errorMessage.value = message;
 }
 
 
@@ -166,8 +108,7 @@ async function newQueensPuzzle(payload: { size: number; maxSolutions: number }):
   resetBoard();
   gameStatus.value = GameStatuses.GENERATING;
   genStateMessage.value = null;
-  finalGenMessage.value = '';
-  statusMessages.value = '';
+  errorMessage.value = '';
   generationResult.value = null;
   queensPuzzle.value = [];
 
@@ -182,42 +123,18 @@ async function newQueensPuzzle(payload: { size: number; maxSolutions: number }):
     generationResult.value = await generateQueensPuzzle(size.value, maxSolutions, setGeneratingMsg);
     queensPuzzle.value = int8FlatMatrixTo2D(generationResult.value.board, size.value);
     resetBoard();
+    gameStatus.value = GameStatuses.BOARD_GENERATED;
   } catch (error) {
     console.error("Error generating new puzzle:", error);
     gameStatus.value = GameStatuses.GENERATING_ERROR;
-    setFinalGenMsg(`<h3 class="card-title error-title">❌ Puzzle Generation Failed</h3>
+    setErrorMsg(`<h3 class="card-title error-title">❌ Puzzle Generation Failed</h3>
                     <p class="card-subtitle">${(error as Error).message}</p>
                     <p class="card-note">Please try again with different settings.</p>`);
   } finally {
-    gameStatus.value = GameStatuses.BOARD_GENERATED
-    setFinalGenMsg(buildFinalGenMessage(generationResult.value!));
     startTimer();
   }
 }
 
-function getStatusMessage(status: GameStatus): string {
-  switch (status) {
-    case GameStatuses.WELCOME:
-      return `<div class="message-row"><span class="status-icon-raised">👑</span> Click <strong>"New Game"</strong> to start a puzzle.</div>`;
-    case GameStatuses.PLAYING:
-      return '';
-    case GameStatuses.WON:
-      return `<div class="message-col"><div class="message-row"><span class="status-icon-raised">🎉</span> <b>Congratulations, you won!</b> <span class="status-icon-raised">🎉</span></div><div class="message-row">Completion time:&nbsp;<strong>${formattedTimer.value}</strong></div></div>`;
-    case GameStatuses.GENERATING:
-      return `<div class="message-row"><span class="status-icon">⏳</span> Generating puzzle<span class="loading-dots">...</span></div>`;
-    case GameStatuses.GENERATING_ERROR:
-      return `<div class="message-row"><span class="status-icon">❌</span> Error generating puzzle. Please try again.</div>`;
-    case GameStatuses.BOARD_GENERATED:
-      return `<div class="message-row"><span class="status-icon">✅</span> Board generated! Click <strong>"Start Game"</strong> to begin playing, or <strong>"New Game"</strong> to generate a new puzzle.</div>`;
-    default:
-      return '';
-  }
-}
-
-// Watch on gameStatus and set the message dynamically
-watch(gameStatus, (newStatus) => {
-  setStatusMsg(getStatusMessage(newStatus));
-}, {immediate: true});
 
 // timeout id for delayed modal show (so we can clear it)
 let winModalTimeout: number | undefined;
@@ -260,7 +177,6 @@ onBeforeUnmount(() => {
       <queen-info
           :total-possible-solutions="generationResult && generationResult.solutions || 0"
           :board-size="size"
-          :generating-message="statusMessages"
           :formatted-timer="formattedTimer"
           :game-status="gameStatus"
       />
@@ -284,7 +200,8 @@ onBeforeUnmount(() => {
         gameStatus === GameStatuses.GENERATING_ERROR"
         :genStatusMessage="genStateMessage"
         :gameStatus="gameStatus"
-        :finalGenMessage="finalGenMessage"
+        :generationResult="generationResult"
+        :errorMessage="errorMessage"
     ></generation-info>
     <div v-if="gameStatus === GameStatuses.WELCOME" class="info-card welcome-card">
       <div class="card-icon">👑</div>
