@@ -9,18 +9,23 @@ const props = defineProps<{
   gameStatus: GameStatus;
 }>();
 
+// Helper function to wrap text between quotes with <strong> tags
+function boldQuotedText(text: string): string {
+  return text.replace(/"([^"]+)"/g, '<strong>"$1"</strong>');
+}
+
 const statusMessage = computed(() => {
   switch (props.gameStatus) {
     case GameStatuses.WELCOME:
-      return { icon: '👑', iconClass: 'icon-crown', text: 'Click "New Game" to start a puzzle.' };
+      return { icon: '👑', iconClass: 'icon-crown', text: boldQuotedText('Click "New Game" to start a puzzle.') };
     case GameStatuses.WON:
-      return { icon: '🎉', iconClass: 'icon-party', text: 'Congratulations, ', textEnd: 'you won!', subtext: `Completion time: ${props.formattedTimer}`, trailingIcon: true };
+      return { icon: '🎉', iconClass: 'icon-party', text: 'Congratulations, you won!', subtext: `Completion time: ${props.formattedTimer}`, trailingIcon: true };
     case GameStatuses.GENERATING:
       return { icon: '⏳', iconClass: 'icon-hourglass', text: 'Generating puzzle', loading: true };
     case GameStatuses.GENERATING_ERROR:
       return { icon: '❌', iconClass: 'icon-error', text: 'Error generating puzzle. Please try again.' };
     case GameStatuses.BOARD_GENERATED:
-      return { icon: '✅', iconClass: 'icon-check', text: 'Board generated! Click "Start Game" to begin playing, or "New Game" to generate a new puzzle.' };
+      return { icon: '✅', iconClass: 'icon-check', text: boldQuotedText('Board generated! Click "Start Game" to begin playing, or "New Game" to generate a new puzzle.') };
     default:
       return null;
   }
@@ -30,14 +35,14 @@ const statusMessage = computed(() => {
 <template>
   <div v-if="gameStatus === GameStatuses.PLAYING" class="board-info">
     <div><strong>Board:</strong> {{ boardSize }}x{{ boardSize }}</div>
-    <div><strong>Possible solutions:</strong> {{ totalPossibleSolutions }}</div>
+    <div><strong>Solutions:</strong> {{ totalPossibleSolutions }}</div>
     <div><strong>Timer:</strong> {{ formattedTimer }}</div>
   </div>
   <div v-else-if="statusMessage" class="board-info board-info-message">
     <div class="message-content">
       <div class="message-row">
         <span class="status-icon" :class="statusMessage.iconClass">{{ statusMessage.icon }}</span>
-        <span>{{ statusMessage.text }}</span><span v-if="statusMessage.loading" class="loading-dots">...</span><span v-if="statusMessage.trailingIcon" class="trailing-group">{{ statusMessage.textEnd }}<span class="status-icon" :class="statusMessage.iconClass">{{ statusMessage.icon }}</span></span>
+        <span v-html="statusMessage.text"></span><span v-if="statusMessage.loading" class="loading-dots">...</span><span v-if="statusMessage.trailingIcon" class="status-icon" :class="statusMessage.iconClass">{{ statusMessage.icon }}</span>
       </div>
       <div v-if="statusMessage.subtext" class="message-row subtext">
         <strong>{{ statusMessage.subtext }}</strong>
@@ -94,12 +99,13 @@ const statusMessage = computed(() => {
 
 .status-icon.icon-crown {
   top: -2px;
+  margin-right: 1px;
 }
 
 .status-icon.icon-party {
   top: -2px;
-  margin-left: -1px;
-  margin-right: -1px;
+  margin-right: 1px;
+  margin-left: 2px;
 }
 
 .status-icon.icon-hourglass {

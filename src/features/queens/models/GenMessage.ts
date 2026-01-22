@@ -9,4 +9,5 @@ export interface GenMessage {
     "targetMaxSolutions": number;
     "size": number;
     "bestSolutionsCount": number;
+    "refillIterations": number;
 }

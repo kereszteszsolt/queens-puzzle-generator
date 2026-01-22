@@ -22,6 +22,7 @@ export interface OptimizeResult {
     iterationLimit: number;
     timeLimitMs: number;
     elapsedTimeMs: number;
+    refillIterations: number;
 }
 
 export interface BoardSnapshot {
@@ -60,7 +61,7 @@ export async function optimizeQueensPuzzle(
     let solutions: number = 0;
     let refillIterations = 0;
     const STRATEGIC_LIMIT = 1_000_000;
-    const REFILL_LIMIT = 10;
+    const REFILL_LIMIT = 25;
     if (size > 12) {
         solutions = STRATEGIC_LIMIT + 1;
         while (solutions > STRATEGIC_LIMIT && refillIterations <= REFILL_LIMIT) {
@@ -81,7 +82,8 @@ export async function optimizeQueensPuzzle(
                 successRate: 0,
                 targetMaxSolutions: targetMaxSolutions,
                 size: size,
-                bestSolutionsCount: Number.POSITIVE_INFINITY
+                bestSolutionsCount: Number.POSITIVE_INFINITY,
+                refillIterations: refillIterations
             });
             // Yield to event loop periodically to allow UI updates
             await new Promise(resolve => setTimeout(resolve, 0));
@@ -109,7 +111,8 @@ export async function optimizeQueensPuzzle(
             successRate: successfulChanges / (successfulChanges + failedChanges),
             targetMaxSolutions: targetMaxSolutions,
             size: size,
-            bestSolutionsCount: bestSolutions
+            bestSolutionsCount: bestSolutions,
+            refillIterations: refillIterations
         });
         iterations++;
 
@@ -140,7 +143,7 @@ export async function optimizeQueensPuzzle(
             }
 
             if (solutions <= targetMaxSolutions) {
-                return {board, solutions: solutions, iterations, stoppedBy: "targetReached", size, elapsedTimeMs: Date.now() - startTime, iterationLimit, timeLimitMs: timeLimit, targetMaxSolutions};
+                return {board, solutions: solutions, iterations, stoppedBy: "targetReached", size, elapsedTimeMs: Date.now() - startTime, iterationLimit, timeLimitMs: timeLimit, targetMaxSolutions, refillIterations};
             }
             continue;
         }
@@ -161,7 +164,7 @@ export async function optimizeQueensPuzzle(
     const stoppedBy: OptimizeResult["stoppedBy"] =
         iterations >= iterationLimit ? "iterationLimit" : "timeLimit";
 
-    return {board: bestBoard, solutions: bestSolutions, iterations, stoppedBy, size, targetMaxSolutions, iterationLimit, timeLimitMs: timeLimit, elapsedTimeMs: Date.now() - startTime};
+    return {board: bestBoard, solutions: bestSolutions, iterations, stoppedBy, size, targetMaxSolutions, iterationLimit, timeLimitMs: timeLimit, elapsedTimeMs: Date.now() - startTime, refillIterations};
 }
 
 function tryRecolor(
