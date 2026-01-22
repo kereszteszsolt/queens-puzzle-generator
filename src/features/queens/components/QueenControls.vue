@@ -88,13 +88,10 @@ const selectedSize = ref<number>(-2);
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
-  justify-content: stretch;
+  justify-content: center;
+  align-items: stretch;
   width: 100%;
   max-width: 100%;
-}
-
-.board-controls:has(button:only-child) {
-  justify-content: center;
 }
 
 .board-controls button {
@@ -136,7 +133,7 @@ const selectedSize = ref<number>(-2);
 
 /* Responsive Design */
 
-/* Large screens - 3 buttons per row */
+/* Large screens - 3 buttons per row, symmetric layout */
 @media (min-width: 1024px) {
   .board-controls {
     gap: 1rem;
@@ -145,19 +142,13 @@ const selectedSize = ref<number>(-2);
   .board-controls button {
     padding: 0.75rem 1.25rem;
     font-size: 1rem;
-    flex: 1 1 calc(33.333% - 0.75rem);
-    max-width: calc(33.333% - 0.75rem);
-  }
-
-  /* Single button takes full width */
-  .board-controls:has(button:only-child) button {
-    flex: 0 1 auto;
-    max-width: fit-content;
+    flex: 1 1 calc((100% / 3) - 0.667rem);
+    max-width: calc((100% / 3) - 0.667rem);
   }
 }
 
-/* Medium screens - tablets, 2-3 buttons per row */
-@media (max-width: 1023px) and (min-width: 640px) {
+/* Medium screens - tablets, 3 buttons per row */
+@media (max-width: 1023px) and (min-width: 768px) {
   .board-controls {
     gap: 0.75rem;
   }
@@ -165,14 +156,22 @@ const selectedSize = ref<number>(-2);
   .board-controls button {
     padding: 0.625rem 1rem;
     font-size: 0.95rem;
-    flex: 1 1 calc(33.333% - 0.5rem);
-    max-width: calc(33.333% - 0.5rem);
+    flex: 1 1 calc((100% / 3) - 0.5rem);
+    max-width: calc((100% / 3) - 0.5rem);
+  }
+}
+
+/* Small tablets - 2 buttons per row */
+@media (max-width: 767px) and (min-width: 640px) {
+  .board-controls {
+    gap: 0.75rem;
   }
 
-  /* Single button takes auto width */
-  .board-controls:has(button:only-child) button {
-    flex: 0 1 auto;
-    max-width: fit-content;
+  .board-controls button {
+    padding: 0.625rem 1rem;
+    font-size: 0.95rem;
+    flex: 1 1 calc(50% - 0.375rem);
+    max-width: calc(50% - 0.375rem);
   }
 }
 
@@ -193,15 +192,9 @@ const selectedSize = ref<number>(-2);
     font-size: 1rem;
     width: 1.125rem;
   }
-
-  /* Single button takes auto width */
-  .board-controls:has(button:only-child) button {
-    flex: 0 1 auto;
-    max-width: fit-content;
-  }
 }
 
-/* Extra small screens - very narrow devices, 1-2 buttons per row */
+/* Extra small screens - very narrow devices, 2 buttons per row */
 @media (max-width: 400px) {
   .board-controls {
     gap: 0.5rem;
@@ -222,12 +215,6 @@ const selectedSize = ref<number>(-2);
   .board-controls button .btn-icon {
     font-size: 1rem;
     width: 1rem;
-  }
-
-  /* Single button takes auto width */
-  .board-controls:has(button:only-child) button {
-    flex: 0 1 auto;
-    max-width: fit-content;
   }
 }
 
