@@ -44,7 +44,7 @@ watch(
     <div class="navbar-container">
       <RouterLink class="navbar-brand" to="/" aria-label="Go to home">
         <div class="navbar-logo" aria-hidden="true">♛</div>
-        <div class="navbar-title">Queens Game</div>
+        <div class="navbar-title">Queens Game & Generator</div>
       </RouterLink>
 
       <!-- Mobile only: show active section label centered -->
@@ -132,8 +132,8 @@ watch(
 }
 
 .navbar-logo {
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2.75rem;
+  height: 2.75rem;
   border-radius: 999px;
   background: linear-gradient(
       135deg,
@@ -150,7 +150,7 @@ watch(
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s;
   user-select: none;
   color: var(--color-neutral);
-  font-size: 1.25rem;
+  font-size: 1.35rem;
   text-shadow: 0 1px 2px rgb(0 0 0 / 0.2);
 }
 
@@ -163,6 +163,7 @@ watch(
 }
 
 .navbar-title {
+  display: none;
   color: var(--color-primary-caption);
   font-weight: 800;
   font-size: 1.250rem;
@@ -325,6 +326,7 @@ watch(
   }
 
   .navbar-title {
+    display: block;
     font-size: 1.25rem;
   }
 
@@ -335,6 +337,7 @@ watch(
   .navbar-logo {
     width: 3rem;
     height: 3rem;
+    font-size: 1.5rem;
   }
 
   .navbar-nav-link {
