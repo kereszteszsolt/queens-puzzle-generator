@@ -26,24 +26,26 @@ defineEmits<{
       </div>
 
       <div class="group">
-        <h3 class="group-title">Up to 10 solutions</h3>
+        <h3 class="group-title">Up to 5 solutions</h3>
         <div class="size-grid">
-          <button v-for="s in [4,5,6,7,8,9,10,11,12,13,14,15]" :key="'ten-'+s" :class="['size-btn', {selected: false}]" @click="$emit('choose', { size: s, maxSolutions: 10 })">
+          <button v-for="s in [4,5,6,7,8,9,10,11,12,13,14,15]" :key="'ten-'+s" :class="['size-btn', {selected: false}]" @click="$emit('choose', { size: s, maxSolutions: 5 })">
             {{ s }}
           </button>
         </div>
       </div>
 
       <div class="group">
-        <h3 class="group-title">Up to 50 solutions</h3>
+        <h3 class="group-title">Up to 10 solutions</h3>
         <div class="size-grid">
-          <button v-for="s in [4,5,6,7,8,9,10,11,12,13,14,15]" :key="'nolimit-'+s" :class="['size-btn', {selected: false}]" @click="$emit('choose', { size: s, maxSolutions: 50 })">
+          <button v-for="s in [4,5,6,7,8,9,10,11,12,13,14,15]" :key="'nolimit-'+s" :class="['size-btn', {selected: false}]" @click="$emit('choose', { size: s, maxSolutions: 10 })">
             {{ s }}
           </button>
         </div>
       </div>
 
-      <p class="info-msg">Note: board 10 may take a few seconds to generate; board 11 may take from 1 to 60 seconds. Larger sizes (12-15) may take longer.</p>
+      <p class="info-msg">
+        Note: Large boards with a unique solution may take several minutes to generate. The generation will stop automatically once the time limit of 3 minutes is reached, and the best result will be retained. Generally, small and medium boards should take 0 to 30 seconds, while large boards may take 0 to 90 seconds.
+      </p>
 
       <div class="buttons">
         <button class="btn ok" @click="$emit('close')">Close</button>
