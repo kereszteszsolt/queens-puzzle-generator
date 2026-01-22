@@ -165,7 +165,11 @@ async function newQueensPuzzle(payload: { size: number; maxSolutions: number }):
   resetTimer();
   resetBoard();
   gameStatus.value = GameStatuses.GENERATING;
+  genStateMessage.value = null;
+  finalGenMessage.value = '';
+  statusMessages.value = '';
   generationResult.value = null;
+  queensPuzzle.value = [];
 
   // Update the size and maxSolutions
   size.value = newSize;

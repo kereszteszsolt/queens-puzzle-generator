@@ -68,6 +68,13 @@ const handleQueenCellPointerEnter = (row: number, col: number) => {
   max-width: min(95vw, 600px);
   width: 100%;
   margin: 0 auto;
+  transition: max-width 0.6s ease-in-out, width 0.6s ease-in-out;
+}
+
+/* Shrink the board wrapper to 25% (75% less) when board is generated (blur state) */
+.queen-board-wrapper:has(.queen-board.blur) {
+  max-width: min(calc(95vw * 0.25), calc(600px * 0.25));
+  width: 25%;
 }
 
 .queen-board {
@@ -76,10 +83,7 @@ const handleQueenCellPointerEnter = (row: number, col: number) => {
   overflow: hidden;
   border-radius: 2px;
   width: 100%;
-}
-
-.row {
-  display: contents;
+  transition: all 0.6s ease-in-out;
 }
 
 /* Blur hatás - looking through water/wrong glasses effect (pure CSS) */
