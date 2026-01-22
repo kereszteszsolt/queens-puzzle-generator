@@ -198,8 +198,10 @@ onBeforeUnmount(() => {
     ></generation-info>
     <div v-if="gameStatus === GameStatuses.WELCOME" class="info-card welcome-card">
       <div class="card-icon">👑</div>
-      <h3 class="card-title">Welcome to Queens Puzzle!</h3>
-      <p class="card-subtitle">Place queens on the board so that no two queens attack each other and each colored region has exactly one queen.</p>
+      <h3 class="card-title">Queens Game</h3>
+      <p class="card-subtitle">
+        Place queens on the board so that no two queens attack each other. This means no two queens can share the same row, column, or be diagonal neighbors. Additionally, ensure that each colored region contains exactly one queen.
+      </p>
       <p class="card-action">Click <strong>"New Game"</strong> to start a puzzle.</p>
     </div>
 
