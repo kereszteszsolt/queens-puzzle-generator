@@ -576,6 +576,8 @@ onMounted(() => {
   font-size: 1.0625rem;
   font-weight: 600;
   color: var(--color-secondary-800);
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .contact-arrow {
