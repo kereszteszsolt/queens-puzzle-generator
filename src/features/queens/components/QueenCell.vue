@@ -60,16 +60,19 @@ function handleTouchMove(e: TouchEvent) {
   const touch = e.touches[0];
   if (!touch) return;
 
-  const element = document.elementFromPoint(touch.clientX, touch.clientY) as HTMLElement | null;
-  if (!element) return;
+  const el = document.elementFromPoint(touch.clientX, touch.clientY) as HTMLElement | null;
+  if (!el) return;
 
-  const row = element.dataset.row;
-  const col = element.dataset.col;
-  if (row === undefined || col === undefined) return;
+  const cell = el.closest('.cell-content') as HTMLElement | null;
+  if (!cell) return;
 
-  const r = parseInt(row, 10);
-  const c = parseInt(col, 10);
-  if (isNaN(r) || isNaN(c)) return;
+  const row = cell.dataset.row;
+  const col = cell.dataset.col;
+  if (row == null || col == null) return;
+
+  const r = Number(row);
+  const c = Number(col);
+  if (!Number.isFinite(r) || !Number.isFinite(c)) return;
 
   emit('queen-cell-touchmove', r, c);
 }
@@ -118,6 +121,11 @@ onBeforeUnmount(() => {
   position: relative;
   touch-action: none;
 }
+
+.cell-content > span {
+  pointer-events: none;
+}
+
 .crown {
   font-size: clamp(15px, 4.5vw, 22px);
   animation: crown-bounce 2s infinite;
