@@ -77,7 +77,7 @@ function handleTouchMove(e: TouchEvent) {
 onMounted(() => {
   const cellContent = document.querySelectorAll('.cell-content');
   cellContent.forEach(cell => {
-    cell.addEventListener('touchmove', handleTouchMove as EventListener);
+    cell.addEventListener('touchmove', handleTouchMove as EventListener, { passive: true });
   });
 });
 
