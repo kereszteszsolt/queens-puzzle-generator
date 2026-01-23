@@ -121,6 +121,14 @@ export function usePointerInteractions(
         stopMove();
     }
 
+    function handleCellInteraction(r: number, c: number) {
+        if (paintActive && boardState.value[r]![c]!.data === EMPTY) {
+            boardState.value[r]![c]! = {data: X_MARK, lastModified: Date.now()};
+        } else if (eraseActive && boardState.value[r]![c]!.data === X_MARK) {
+            boardState.value[r]![c]! = {data: EMPTY, lastModified: Date.now()};
+        }
+    }
+
     function handlePointerEnter(r: number, c: number) {
         // Prevent interactions when game is not in playing or won state
         if (gameStatus.value !== GameStatuses.PLAYING && gameStatus.value !== GameStatuses.WON) {
@@ -128,11 +136,20 @@ export function usePointerInteractions(
         }
 
         if (!isPointerDown) return;
-        if (paintActive && boardState.value[r]![c]!.data === EMPTY) {
-            boardState.value[r]![c]! = {data: X_MARK, lastModified: Date.now()};
-        } else if (eraseActive && boardState.value[r]![c]!.data === X_MARK) {
-            boardState.value[r]![c]! = {data: EMPTY, lastModified: Date.now()};
+        handleCellInteraction(r, c);
+    }
+
+    // Handle pointer move for touch devices - they don't fire pointerenter reliably
+    function handlePointerMove(r: number, c: number) {
+        // Prevent interactions when game is not in playing or won state
+        if (gameStatus.value !== GameStatuses.PLAYING && gameStatus.value !== GameStatuses.WON) {
+            return;
         }
+
+        if (!isPointerDown) return;
+        if (!paintActive && !eraseActive) return;
+
+        handleCellInteraction(r, c);
     }
 
     function handleGlobalPointerUp() {
@@ -148,6 +165,7 @@ export function usePointerInteractions(
         handlePointerDown,
         handlePointerUp,
         handlePointerEnter,
+        handlePointerMove,
         handleGlobalPointerUp,
     };
 }

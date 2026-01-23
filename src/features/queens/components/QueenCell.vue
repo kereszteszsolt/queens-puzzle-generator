@@ -20,6 +20,7 @@ const emit = defineEmits<{
   (e: 'queen-cell-pointerdown', row: number, col: number): void;
   (e: 'queen-cell-pointerenter', row: number, col: number): void;
   (e: 'queen-cell-pointerup', row: number, col: number): void;
+  (e: 'queen-cell-pointermove', row: number, col: number): void;
 }>();
 
 const bgClass = computed(() => `bg-cell-${props.color.toString().padStart(2, '0')}`);
@@ -54,6 +55,10 @@ function handlePointerEnter() {
 function handlePointerUp() {
   emit('queen-cell-pointerup', props.row, props.col);
 }
+
+function handlePointerMove() {
+  emit('queen-cell-pointermove', props.row, props.col);
+}
 </script>
 
 <template>
@@ -63,6 +68,7 @@ function handlePointerUp() {
        @pointerdown="handlePointerDown"
        @pointerup="handlePointerUp"
        @pointerenter="handlePointerEnter"
+       @pointermove="handlePointerMove"
   >
     <span v-if="showWinCrown" class="crown">👑</span>
     <span v-else-if="props.value === QUEEN">♛</span>
@@ -81,6 +87,7 @@ function handlePointerUp() {
   aspect-ratio: 1 / 1;
   box-sizing: border-box;
   position: relative;
+  touch-action: none;
 }
 .crown {
   font-size: clamp(15px, 4.5vw, 22px);
