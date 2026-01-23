@@ -20,7 +20,7 @@ const emit = defineEmits<{
   (e: 'queen-cell-pointerdown', row: number, col: number): void;
   (e: 'queen-cell-pointerenter', row: number, col: number): void;
   (e: 'queen-cell-pointerup', row: number, col: number): void;
-  (e: 'queen-cell-pointermove', row: number, col: number): void;
+  (e: 'queen-cell-touchmove', row: number, col: number): void;
 }>();
 
 const bgClass = computed(() => `bg-cell-${props.color.toString().padStart(2, '0')}`);
@@ -56,8 +56,22 @@ function handlePointerUp() {
   emit('queen-cell-pointerup', props.row, props.col);
 }
 
-function handlePointerMove() {
-  emit('queen-cell-pointermove', props.row, props.col);
+function handleTouchMove(e: TouchEvent) {
+  const touch = e.touches[0];
+  if (!touch) return;
+
+  const element = document.elementFromPoint(touch.clientX, touch.clientY) as HTMLElement | null;
+  if (!element) return;
+
+  const row = element.dataset.row;
+  const col = element.dataset.col;
+  if (row === undefined || col === undefined) return;
+
+  const r = parseInt(row, 10);
+  const c = parseInt(col, 10);
+  if (isNaN(r) || isNaN(c)) return;
+
+  emit('queen-cell-touchmove', r, c);
 }
 </script>
 
@@ -65,10 +79,12 @@ function handlePointerMove() {
   <div class="cell-content"
        :class="props.hasConflict ? bgClassConflict : bgClass"
        :style="cellStyle"
+       :data-row="props.row"
+       :data-col="props.col"
        @pointerdown="handlePointerDown"
        @pointerup="handlePointerUp"
        @pointerenter="handlePointerEnter"
-       @pointermove="handlePointerMove"
+       @touchmove.prevent="handleTouchMove"
   >
     <span v-if="showWinCrown" class="crown">👑</span>
     <span v-else-if="props.value === QUEEN">♛</span>

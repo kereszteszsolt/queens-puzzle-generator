@@ -139,8 +139,8 @@ export function usePointerInteractions(
         handleCellInteraction(r, c);
     }
 
-    // Handle pointer move for touch devices - they don't fire pointerenter reliably
-    function handlePointerMove(r: number, c: number) {
+    // Handle touch move for mobile devices - they don't fire pointerenter reliably
+    function handleTouchMove(r: number, c: number) {
         // Prevent interactions when game is not in playing or won state
         if (gameStatus.value !== GameStatuses.PLAYING && gameStatus.value !== GameStatuses.WON) {
             return;
@@ -148,6 +148,7 @@ export function usePointerInteractions(
 
         if (!isPointerDown) return;
         if (!paintActive && !eraseActive) return;
+
 
         handleCellInteraction(r, c);
     }
@@ -165,7 +166,7 @@ export function usePointerInteractions(
         handlePointerDown,
         handlePointerUp,
         handlePointerEnter,
-        handlePointerMove,
+        handleTouchMove,
         handleGlobalPointerUp,
     };
 }
