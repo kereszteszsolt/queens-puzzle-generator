@@ -1,0 +1,61 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+/*lassi-mango color theme*/
+:root {
+    --color-primary: #ff7f50;        /* coral */
+    --color-secondary: #228b22;      /* forestgreen */
+    --color-tertiary: #00bfff;       /* deepskyblue */
+    --color-neutral: #fffaf0;        /* floralwhite */
+    --color-neutral-variant: #f5f5f5;/* whitesmoke */
+    --color-neutral-variant-darker: #e5e5e5; /* slightly darker than whitesmoke */
+    --color-error: #ac1010;          /* darkred */
+
+    --font-sans: "Inter", system-ui, sans-serif;
+    --font-heading: "Poppins", sans-serif;
+
+    --color-primary-caption: antiquewhite;
+
+    --radius-md: 0.75rem;
+    --radius-xl: 1.5rem;
+    --shadow-md: 0 2px 8px rgb(0 0 0 / 0.1);
+
+    --color-primary-100: #ffece6;
+    --color-primary-200: #ffccc1;
+    --color-primary-300: #ffab99;
+    --color-primary-400: #ff8a70;
+    --color-primary-500: #ff7f50;
+    --color-primary-600: #e67345;
+    --color-primary-700: #cc6640;
+    --color-primary-800: #b3593a;
+    --color-primary-900: #994d33;
+
+    --color-secondary-100: #e6f4e6;
+    --color-secondary-200: #c1e6c1;
+    --color-secondary-300: #99d699;
+    --color-secondary-400: #70c770;
+    --color-secondary-490: #32b432;
+    --color-secondary-500: #228b22;
+    --color-secondary-600: #1f7e1f;
+    --color-secondary-700: #1c721c;
+    --color-secondary-800: #186618;
+    --color-secondary-900: #145a14;
+
+    --color-tertiary-100: #e6f7ff;
+    --color-tertiary-200: #c1eaff;
+    --color-tertiary-300: #99ddff;
+    --color-tertiary-400: #70d0ff;
+    --color-tertiary-500: #00bfff;
+    --color-tertiary-600: #00a6e6;
+    --color-tertiary-700: #0099cc;
+    --color-tertiary-800: #008ab3;
+    --color-tertiary-900: #007a99;
+}
+
+html {
+    font-family: var(--font-sans), serif;
+    color: var(--color-secondary);
+    background-color: var(--color-neutral);
+}
