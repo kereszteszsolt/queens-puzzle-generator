@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed} from "vue";
+import {computed, onMounted, onBeforeUnmount} from "vue";
 import {QUEEN, X_MARK} from "../constants";
 
 const props = defineProps<{
@@ -73,6 +73,20 @@ function handleTouchMove(e: TouchEvent) {
 
   emit('queen-cell-touchmove', r, c);
 }
+
+onMounted(() => {
+  const cellContent = document.querySelectorAll('.cell-content');
+  cellContent.forEach(cell => {
+    cell.addEventListener('touchmove', handleTouchMove as EventListener, { passive: true });
+  });
+});
+
+onBeforeUnmount(() => {
+  const cellContent = document.querySelectorAll('.cell-content');
+  cellContent.forEach(cell => {
+    cell.removeEventListener('touchmove', handleTouchMove as EventListener);
+  });
+});
 </script>
 
 <template>
@@ -84,7 +98,6 @@ function handleTouchMove(e: TouchEvent) {
        @pointerdown="handlePointerDown"
        @pointerup="handlePointerUp"
        @pointerenter="handlePointerEnter"
-       @touchmove.prevent="handleTouchMove"
   >
     <span v-if="showWinCrown" class="crown">👑</span>
     <span v-else-if="props.value === QUEEN">♛</span>
