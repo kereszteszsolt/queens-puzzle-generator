@@ -16,7 +16,7 @@ const emit = defineEmits<{
   (e: 'queen-cell-pointerdown', row: number, col: number): void;
   (e: 'queen-cell-pointerenter', row: number, col: number): void;
   (e: 'queen-cell-pointerup', row: number, col: number): void;
-  (e: 'queen-cell-pointermove', row: number, col: number): void;
+  (e: 'queen-cell-touchmove', row: number, col: number): void;
 }>();
 
 const gridSize = computed(() => props.queensPuzzle.length);
@@ -37,8 +37,8 @@ const handleQueenCellPointerUp = (row: number, col: number) => {
 const handleQueenCellPointerEnter = (row: number, col: number) => {
   emit('queen-cell-pointerenter', row, col);
 };
-const handleQueenCellPointerMove = (row: number, col: number) => {
-  emit('queen-cell-pointermove', row, col);
+const handleQueenCellTouchMove = (row: number, col: number) => {
+  emit('queen-cell-touchmove', row, col);
 };
 </script>
 
@@ -61,7 +61,7 @@ const handleQueenCellPointerMove = (row: number, col: number) => {
             @queen-cell-pointerdown="handleQueenCellPointerDown"
             @queen-cell-pointerenter="handleQueenCellPointerEnter"
             @queen-cell-pointerup="handleQueenCellPointerUp"
-            @queen-cell-pointermove="handleQueenCellPointerMove"
+            @queen-cell-touchmove="handleQueenCellTouchMove"
         />
       </template>
     </div>

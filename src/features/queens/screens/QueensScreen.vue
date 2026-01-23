@@ -33,7 +33,7 @@ const {
   handlePointerDown,
   handlePointerUp,
   handlePointerEnter,
-  handlePointerMove,
+  handleTouchMove,
   handleGlobalPointerUp
 } = usePointerInteractions(boardState, queensPuzzle, pushHistorySnapshot, undo, gameStatus);
 const {timer, formattedTimer, startTimer, stopTimer, resetTimer} = useTimer();
@@ -216,7 +216,7 @@ onBeforeUnmount(() => {
         @queen-cell-pointerdown="handlePointerDown"
         @queen-cell-pointerup="handlePointerUp"
         @queen-cell-pointerenter="handlePointerEnter"
-        @queen-cell-pointermove="handlePointerMove"
+        @queen-cell-touchmove="handleTouchMove"
     />
 
     <choose-modal
