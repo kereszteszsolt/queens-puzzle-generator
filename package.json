@@ -1,5 +1,5 @@
 {
-  "name": "queens-puzzles-generator",
+  "name": "queens-puzzle-generator",
   "private": true,
   "version": "0.0.0",
   "type": "module",

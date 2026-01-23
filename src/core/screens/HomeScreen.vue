@@ -131,7 +131,7 @@ const features = [
         </p>
         <div class="open-source-links">
           <a
-              href="https://github.com/kereszteszsolt/queens-puzzles-generator"
+              href="https://github.com/kereszteszsolt/queens-puzzle-generator"
               target="_blank"
               rel="noopener noreferrer"
               class="link-button link-button-primary"

@@ -159,7 +159,7 @@ onMounted(() => {
           The author is not liable for any damages or losses resulting from its use.
         </p>
         <p class="terms-text">
-          This project is open source and distributed under the <a href="https://github.com/kereszteszsolt/queens-puzzles-generator?tab=Apache-2.0-1-ov-file" target="_blank" rel="noopener noreferrer" class="inline-link">Apache 2.0 License</a>. You are free
+          This project is open source and distributed under the <a href="https://github.com/kereszteszsolt/queens-puzzle-generator?tab=Apache-2.0-1-ov-file" target="_blank" rel="noopener noreferrer" class="inline-link">Apache 2.0 License</a>. You are free
           to use, modify, and distribute the code in accordance with the license terms.
         </p>
       </div>

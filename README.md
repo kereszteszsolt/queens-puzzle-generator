@@ -9,7 +9,7 @@
 
 **Experience endless challenges with a smart Queens puzzle generator**
 
-[🎮 Play Now](https://kereszteszsolt.github.io/queens-puzzles-generator) • [📖 About](#about) • [🚀 Getting Started](#getting-started) • [☕ Support](#support-the-project)
+[🎮 Play Now](https://kereszteszsolt.github.io/queens-puzzle-generator) • [📖 About](#about) • [🚀 Getting Started](#getting-started) • [☕ Support](#support-the-project)
 
 </div>
 
@@ -48,10 +48,10 @@ Queens Game & Generator is an open-source web application that brings a fresh tw
 
 ```bash
 # Clone the repository
-git clone https://github.com/kereszteszsolt/quens-puzzles-generator.git
+git clone https://github.com/kereszteszsolt/queens-puzzle-generator.git
 
 # Navigate to the project directory
-cd queens-puzzles-generator
+cd queens-puzzle-generator
 
 # Install dependencies
 npm install
