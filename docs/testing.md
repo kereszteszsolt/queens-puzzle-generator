@@ -60,7 +60,7 @@ Open `http://localhost:5173/crown-grid/` and complete the checks below.
 - Test desktop and a mobile viewport near `390px` width.
 - Navigation remains usable and the board does not create page-level horizontal overflow.
 - About contact cards retain their correct GitHub, email, and website targets.
-- The email target is assembled at runtime from fragments; no full email address is added to README or support documentation.
+- The email target is assembled at runtime from fragments; no full email address is added to README, the user guide, or other Markdown documentation.
 
 ## Algorithm-focused evidence for future changes
 

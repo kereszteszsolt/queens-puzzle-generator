@@ -21,7 +21,7 @@ Establish CrownGrid as a coherent, documented repository without refactoring the
 
 Release 0.1 changes repository identity, visible naming, deployment metadata, documentation, favicon, support presentation, agent instructions, skills, and build CI. It does not refactor generator, solver, optimizer, game-state, timer, or pointer-interaction behavior.
 
-The About screen's existing email fragments and runtime assembly remain present. The full email address is not added to README or support documentation.
+The About screen's existing email fragments and runtime assembly remain present. The full email address is not added to README, the user guide, or other Markdown documentation.
 
 ## Verification boundary
 

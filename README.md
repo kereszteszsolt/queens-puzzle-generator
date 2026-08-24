@@ -123,7 +123,7 @@ These files support development only and are not CrownGrid runtime dependencies.
 
 ## Privacy
 
-CrownGrid does not include accounts, analytics, cookies, a database, or an application backend. The active puzzle and timer exist in browser memory and reset on reload. The About screen retains its fragment-based runtime email construction as a basic anti-harvesting measure; the README and support documentation intentionally publish no email address. See [privacy and contact boundaries](docs/privacy-and-contact.md).
+CrownGrid does not include accounts, analytics, cookies, a database, or an application backend. The active puzzle and timer exist in browser memory and reset on reload. The About screen retains its fragment-based runtime email construction as a basic anti-harvesting measure; the README and user guide intentionally publish no email address. See [privacy and contact boundaries](docs/privacy-and-contact.md).
 
 ## Support and contact
 
@@ -133,9 +133,13 @@ CrownGrid does not include accounts, analytics, cookies, a database, or an appli
 | --- | --- |
 | Website | [kereszteszsolt.hu](https://kereszteszsolt.hu/) |
 | GitHub | [@kereszteszsolt](https://github.com/kereszteszsolt) |
-| Project support | [SUPPORT.md](SUPPORT.md) |
+| User guide | [CrownGrid user guide](docs/user-guide.md) |
 
 > The maintainer's website is available in Hungarian (HU), English (EN), Romanian (RO), and German (DE).
+
+## License
+
+Apache License 2.0. See [`LICENSE`](LICENSE).
 
 ## ☕ Ways to support
 
@@ -147,10 +151,6 @@ CrownGrid does not include accounts, analytics, cookies, a database, or an appli
   <a href="https://buymeacoffee.com/kereszteszsolt"><img src="docs/assets/orange-button.png" alt="Buy Me a Coffee" width="360"></a><br>
   <strong>Every coffee counts! ☕❤️</strong>
 </p>
-
-## License
-
-Apache License 2.0. See [`LICENSE`](LICENSE).
 
 ---
 

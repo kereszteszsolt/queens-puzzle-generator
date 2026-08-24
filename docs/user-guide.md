@@ -101,3 +101,7 @@ Both the win-modal **Replay** button and the main Replay control clear the playe
 ### Reloading removed my game
 
 This is expected. CrownGrid does not currently persist game state.
+
+## Further help
+
+Search the repository's [GitHub Issues](https://github.com/kereszteszsolt/crown-grid/issues) before reporting a reproducible defect, build problem, or documentation correction. Include the CrownGrid version or commit, browser and operating system, board size and solution target, reproduction steps, and expected and observed behavior. Do not attach personal information or private browser data.

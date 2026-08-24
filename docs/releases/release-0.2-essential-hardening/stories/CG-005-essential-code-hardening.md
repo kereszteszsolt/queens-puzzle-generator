@@ -19,7 +19,7 @@ Code review found a small number of high-value issues. They should be fixed toge
 - [x] Touch movement is handled once at a board or declarative component boundary; mounting one cell does not query every cell or attach duplicate listeners, and unmount cleanup removes exactly the listeners that were registered.
 - [x] The timer runs only in the playing state: generation success leaves it stopped until **Start Game**, generation failure leaves it stopped and exposes a usable New Game/retry path, both replay entry points reset and restart consistently, and winning stops it.
 - [x] The About screen keeps fragment-based runtime email construction, targets only the email card, and never rewrites the GitHub or website card through a generic `.contact-value` selector.
-- [x] README, SUPPORT, and Markdown documentation continue to contain no full email address.
+- [x] README, the user guide, and Markdown documentation continue to contain no full email address.
 - [x] Add focused automated coverage for state initialization and optimizer finite-result behavior, plus repeatable pointer, timer, and contact-card smoke evidence.
 - [x] `npm run build` and the relevant checks in `docs/testing.md` pass without changing puzzle rules or visible controls.
 
@@ -37,7 +37,7 @@ Recorded on 2026-08-24.
 - Chromium desktop and `390×844` smoke paths confirmed pre-start input blocking, two-cell pointer drag, two-cell real touch drag, timer start only after **Start Game**, New Game pause/resume, Reset Game restart, win stop, win-modal Replay restart, main Replay restart, and no page-level horizontal overflow.
 - A development-only rejection harness confirmed generation failure leaves the timer absent/stopped, exposes **New Game**, and reopens the board selector. No production test hook was added.
 - Independent contact checks preserved the GitHub and website targets while the email card received the fragment-assembled runtime `mailto:` target.
-- Markdown privacy scan found no assembled full email address in README, SUPPORT, or `*.md` files.
+- Markdown privacy scan found no assembled full email address in README, the user guide, or `*.md` files.
 - `npm run build`: `vue-tsc -b && vite build` passed with Vite `7.3.6`; 92 modules transformed.
 
 The browser smoke harness was temporary and is not claimed as a checked-in end-to-end suite. The repeatable manual paths remain documented in `docs/testing.md`.

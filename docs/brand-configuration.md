@@ -52,7 +52,7 @@ Future palette changes must check board-color distinguishability, conflict patte
 
 ## Contact and support rule
 
-README and support documentation publish the maintainer website and GitHub profile, but no email address. The About screen retains fragment-based runtime email construction. A future implementation may improve how the email card is targeted, but must not replace the fragments with a plain address in public documentation.
+README and the user guide publish the maintainer website and GitHub profile, but no email address. The About screen retains fragment-based runtime email construction. A future implementation may improve how the email card is targeted, but must not replace the fragments with a plain address in public documentation.
 
 ## Rename checklist
 

@@ -26,7 +26,7 @@ The About screen stores the email components as separate string fragments and as
 Repository rules:
 
 - keep the fragment-based runtime construction unless an explicit story approves another privacy-conscious mechanism;
-- do not add the full address to README, SUPPORT, release notes, or other Markdown documentation;
+- do not add the full address to README, the user guide, release notes, or other Markdown documentation;
 - target only the email contact card when assigning rendered text or a `mailto:` link;
 - never allow a generic selector to rewrite the GitHub or website contact card;
 - verify the three contact cards independently after changes.

@@ -12,7 +12,7 @@
 - Prefer small typed utilities and focused composables over a framework or state library added without need.
 - Treat algorithm performance, finite progress values, and input-listener cleanup as correctness concerns.
 - Preserve the runtime fragment-based email construction unless an explicit story replaces it with an equally privacy-conscious approach.
-- Do not publish the full email address in README or support documentation.
+- Do not publish the full email address in README, the user guide, or other Markdown documentation.
 - Keep display branding (`CrownGrid`) separate from stable story identifiers (`CG-`) and document any repository-base change.
 
 ## Architecture
