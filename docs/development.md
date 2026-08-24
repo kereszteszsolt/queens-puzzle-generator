@@ -18,6 +18,7 @@ Open `http://localhost:5173/crown-grid/`.
 Build and preview the production output with:
 
 ```bash
+npm test
 npm run build
 npm run preview
 ```
@@ -63,7 +64,7 @@ Do not change Git remotes automatically.
 2. Confirm whether the story is implemented, planned, or documentation-only.
 3. Trace affected components, composables, utilities, and status transitions.
 4. Make the smallest complete change.
-5. Run the build and relevant manual checks from [testing](testing.md).
+5. Run the focused test suite, build, and relevant manual checks from [testing](testing.md).
 6. Record exact evidence and limitations in the story before changing its status.
 
 ## AI-assisted roles

@@ -42,18 +42,21 @@ const emailLink = `mailto:${obfuscatedEmail[0]}@${obfuscatedEmail[1]}.${obfuscat
 
 const contactInfo = [
   {
+    kind: 'github',
     icon: githubIcon,
     label: 'GitHub',
     value: '@kereszteszsolt',
     link: 'https://github.com/kereszteszsolt'
   },
   {
+    kind: 'email',
     icon: emailIcon,
     label: 'Email',
     value: `${obfuscatedEmail[0]}@${obfuscatedEmail[1]}.${obfuscatedEmail[2]}`,
     link: emailLink
   },
   {
+    kind: 'website',
     icon: webIcon,
     label: 'Website',
     value: 'kereszteszsolt.hu',
@@ -64,11 +67,12 @@ const contactInfo = [
 const lastUpdated = 'August 24, 2026';
 
 onMounted(() => {
-  const emailElement = document.querySelector('.contact-value');
-  if (emailElement) {
-    const emailParts = ['contact', 'kereszteszsolt', 'com'];
-    emailElement.textContent = `${emailParts[0]}@${emailParts[1]}.${emailParts[2]}`;
-    emailElement.parentElement?.setAttribute('href', `mailto:${emailParts[0]}@${emailParts[1]}.${emailParts[2]}`);
+  const emailCard = document.querySelector<HTMLAnchorElement>('[data-contact="email"]');
+  const emailValue = emailCard?.querySelector<HTMLElement>('.contact-value');
+  if (emailCard && emailValue) {
+    const emailAddress = `${obfuscatedEmail[0]}@${obfuscatedEmail[1]}.${obfuscatedEmail[2]}`;
+    emailValue.textContent = emailAddress;
+    emailCard.href = `mailto:${emailAddress}`;
   }
 });
 </script>
@@ -216,6 +220,7 @@ onMounted(() => {
               v-for="(contact, index) in contactInfo"
               :key="index"
               :href="contact.link"
+              :data-contact="contact.kind"
               target="_blank"
               rel="noopener noreferrer"
               class="contact-card"

@@ -22,6 +22,7 @@
   },
   "scripts": {
     "dev": "vite",
+    "test": "vitest run",
     "build": "vue-tsc -b && vite build",
     "preview": "vite preview",
     "predeploy": "npm run build",
@@ -38,6 +39,7 @@
     "gh-pages": "^6.3.0",
     "typescript": "~5.9.3",
     "vite": "^7.2.4",
+    "vitest": "^4.1.11",
     "vue-tsc": "^3.1.4"
   }
 }

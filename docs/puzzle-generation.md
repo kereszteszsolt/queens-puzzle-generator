@@ -73,7 +73,7 @@ Default stop limits are three minutes and two million iterations. Boards larger 
 
 ## Progress contract
 
-Generation progress reports iteration, current and best solution counts, elapsed time, success rate, size, limits, target, and refill count. UI code must treat these as finite display values. The planned hardening story initializes the best count from the evaluated initial board and prevents an iteration-zero `NaN` success rate.
+Generation progress reports iteration, current and best solution counts, elapsed time, success rate, size, limits, target, and refill count. The optimizer initializes the best state from the evaluated initial board and reports a zero success rate before any attempt, keeping iteration-zero progress finite.
 
 ## Performance boundary
 

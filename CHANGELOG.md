@@ -4,9 +4,14 @@ All notable repository-level changes are documented here. CrownGrid follows rele
 
 ## Unreleased
 
-### Planned
+### Added
 
-- Essential state, optimizer, pointer-input, timer-lifecycle, and contact-card hardening described by [CG-005](docs/releases/release-0.2-essential-hardening/stories/CG-005-essential-code-hardening.md).
+- Five focused Vitest checks for independent `CellState` initialization and finite optimizer initial/no-iteration/progress behavior.
+
+### Changed
+
+- Implemented the bounded state, optimizer, board-level touch-input, timer/replay/recovery, and contact-card hardening described by [CG-005](docs/releases/release-0.2-essential-hardening/stories/CG-005-essential-code-hardening.md).
+- Extended CI to run the focused test suite before the production build.
 
 ## 0.1.0 — 2026-08-24
 

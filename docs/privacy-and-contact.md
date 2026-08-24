@@ -31,7 +31,7 @@ Repository rules:
 - never allow a generic selector to rewrite the GitHub or website contact card;
 - verify the three contact cards independently after changes.
 
-The current selector-targeting defect is documented, not silently changed, in [CG-005](releases/release-0.2-essential-hardening/stories/CG-005-essential-code-hardening.md).
+Release 0.2 implements this boundary with a dedicated `data-contact="email"` target and a nested email-value lookup. Independent browser checks verify that the GitHub and website cards retain their original targets.
 
 ## Reporting a privacy concern
 

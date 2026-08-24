@@ -13,7 +13,7 @@ The hosted application is available at `https://kereszteszsolt.github.io/crown-g
 5. Leave the generation screen open until CrownGrid returns a board or reports an error.
 6. Select **Start Game** after the board is generated.
 
-Larger boards and stricter solution targets require more browser CPU time. The optimizer stops after reaching the target, the configured three-minute time limit, or the iteration limit. It is designed to return the best tracked board when a limit is reached; the no-improvement edge case is explicitly tracked by CG-005.
+Larger boards and stricter solution targets require more browser CPU time. The optimizer stops after reaching the target, the configured three-minute time limit, or the iteration limit. It returns the best evaluated board with a finite solution count even when no optimization iteration runs or no improvement is accepted.
 
 ## Solve the board
 
@@ -51,7 +51,7 @@ stateDiagram-v2
     Playing --> Generating: New Game
     Won --> Playing: Replay
     Won --> Generating: New Game
-    GenerationError --> Welcome: reload or leave and reopen Queens
+    GenerationError --> Generating: New Game + selection
 ```
 
 ## Controls
@@ -88,15 +88,15 @@ Select **Start Game**. A generated board remains intentionally non-interactive u
 
 ### A double tap creates an unexpected mark first
 
-The current interaction model records the first tap as an `X`, then uses undo when the second tap converts the cell to a queen. Release 0.2 tracks focused input hardening without redesigning this interaction model.
+The current interaction model records the first tap as an `X`, then uses undo when the second tap converts the cell to a queen. Release 0.2 keeps this behavior while moving touch movement ownership to one board-level listener.
 
-### Generation failed and no retry control is visible
+### Generation failed
 
-In the current baseline, leave the Queens route and return, or reload the page, before starting another generation. CG-005 adds an explicit retry path and requires the timer to remain stopped.
+The timer remains stopped. Select **New Game** to reopen the board-size and solution-target selector and retry with the same or different settings.
 
-### Replay from the win modal did not restart the timer
+### Replay the current puzzle
 
-Use the main Replay control after closing the modal, or start a new game. CG-005 aligns both replay paths.
+Both the win-modal **Replay** button and the main Replay control clear the player board, reset the timer, and restart the current puzzle consistently.
 
 ### Reloading removed my game
 

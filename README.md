@@ -100,7 +100,7 @@ The Vite base path is `/crown-grid/`. Update [`vite.config.ts`](vite.config.ts),
 - [Privacy and contact boundaries](docs/privacy-and-contact.md)
 - [Release index](docs/releases/README.md)
 - [Release 0.1: CrownGrid foundation](docs/releases/release-0.1-crowngrid-foundation/README.md)
-- [Release 0.2: Essential hardening](docs/releases/release-0.2-essential-hardening/README.md) — planned
+- [Release 0.2: Essential hardening](docs/releases/release-0.2-essential-hardening/README.md)
 
 ## Project identity
 
@@ -113,7 +113,7 @@ The Vite base path is `/crown-grid/`. Update [`vite.config.ts`](vite.config.ts),
 | Story prefix | `CG-` |
 | Maintainer | Keresztes Zsolt — [kereszteszsolt.hu](https://kereszteszsolt.hu/) |
 
-Release 0.1 applies the approved identity and documentation without refactoring the puzzle engine. The narrowly scoped follow-up findings are recorded in [CG-005](docs/releases/release-0.2-essential-hardening/stories/CG-005-essential-code-hardening.md).
+Release 0.1 applies the approved identity and documentation without refactoring the puzzle engine. Release 0.2 implements the narrowly scoped state, optimizer, input-listener, timer, replay, recovery, and contact fixes recorded in [CG-005](docs/releases/release-0.2-essential-hardening/stories/CG-005-essential-code-hardening.md).
 
 ## AI-assisted engineering
 

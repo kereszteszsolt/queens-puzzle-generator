@@ -11,7 +11,7 @@
 | [Testing](testing.md) | Build verification and the repeatable manual smoke matrix |
 | [Brand configuration](brand-configuration.md) | Canonical CrownGrid names, visual identity, and rename rules |
 | [Privacy and contact](privacy-and-contact.md) | Browser-only data boundary and email-obfuscation requirements |
-| [Release index](releases/README.md) | Implemented repository foundation and planned hardening |
+| [Release index](releases/README.md) | Implemented repository foundation and essential hardening |
 
 ## Documentation map
 
@@ -27,4 +27,4 @@ flowchart TD
     README --> PRIVACY[Privacy and contact]
 ```
 
-Documentation describes the supplied CrownGrid source plus the repository-level Release 0.1 additions. Planned behavior is explicitly marked and belongs to Release 0.2.
+Documentation describes the CrownGrid source through implemented Releases 0.1 and 0.2. Future behavior remains explicitly separated from implemented evidence.

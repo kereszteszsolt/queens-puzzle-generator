@@ -1,4 +1,4 @@
-import {ref, computed} from "vue";
+import {computed, onScopeDispose, ref} from "vue";
 
 export function useTimer() {
     const timer = ref(0)
@@ -22,6 +22,8 @@ export function useTimer() {
     const resetTimer = () => {
         timer.value = 0
     }
+
+    onScopeDispose(stopTimer)
 
     // Add a computed property to format the timer as minutes and seconds
     const formattedTimer = computed(() => {

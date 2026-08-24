@@ -75,7 +75,7 @@ interface CellState {
 }
 ```
 
-`data` is `EMPTY`, `QUEEN`, or `X_MARK`. `lastModified` associates automatic `X` marks with the queen that created them. Release 0.2 records the existing initialization-field mismatch as a required hardening item.
+`data` is `EMPTY`, `QUEEN`, or `X_MARK`. `lastModified` associates automatic `X` marks with the queen that created them. Empty-board construction creates an independent conforming object for every cell.
 
 ### Game status
 
@@ -96,6 +96,6 @@ The status union contains `welcome`, `generating`, `generatingError`, `boardGene
 
 CrownGrid stores no game data in local storage, IndexedDB, cookies, or a backend. Reactive state is lost on reload. The About screen builds its email link from fragments at runtime; this is a basic harvesting deterrent rather than a security boundary. See [privacy and contact](privacy-and-contact.md).
 
-## Known bounded hardening
+## Implemented bounded hardening
 
-[CG-005](releases/release-0.2-essential-hardening/stories/CG-005-essential-code-hardening.md) is the only currently planned code-hardening story. It addresses state-field consistency, finite optimizer values, touch listener ownership, generation-error and replay timer lifecycle, and contact-card targeting. A Web Worker, state-machine library, persistence layer, or broad screen extraction is not part of that story.
+[CG-005](releases/release-0.2-essential-hardening/stories/CG-005-essential-code-hardening.md) implements state-field consistency, finite optimizer values, one board-owned touch listener, generation-error and replay timer lifecycle, and email-card targeting. A Web Worker, state-machine library, persistence layer, or broad screen extraction remains outside that story.

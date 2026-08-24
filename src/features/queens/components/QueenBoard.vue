@@ -2,7 +2,7 @@
 import type {CellState} from "../models/CellState.ts";
 import QueenCell from "./QueenCell.vue";
 import {GameStatuses} from "../models/GameStatus.ts";
-import {computed} from "vue";
+import {computed, onBeforeUnmount, onMounted, ref} from "vue";
 
 const props = defineProps<{
   queensPuzzle: number[][];
@@ -20,6 +20,8 @@ const emit = defineEmits<{
 }>();
 
 const gridSize = computed(() => props.queensPuzzle.length);
+const boardElement = ref<HTMLElement | null>(null);
+let touchTarget: HTMLElement | null = null;
 
 const getCellBorders = (row: number, col: number) => ({
   top: row > 0 && props.queensPuzzle[row]![col]! !== props.queensPuzzle[row - 1]![col]!,
@@ -37,14 +39,37 @@ const handleQueenCellPointerUp = (row: number, col: number) => {
 const handleQueenCellPointerEnter = (row: number, col: number) => {
   emit('queen-cell-pointerenter', row, col);
 };
-const handleQueenCellTouchMove = (row: number, col: number) => {
+
+function handleBoardTouchMove(event: TouchEvent) {
+  const touch = event.touches[0];
+  if (!touch) return;
+
+  const target = document.elementFromPoint(touch.clientX, touch.clientY) as HTMLElement | null;
+  const cell = target?.closest<HTMLElement>('[data-row][data-col]');
+  if (!cell) return;
+
+  const row = Number(cell.dataset.row);
+  const col = Number(cell.dataset.col);
+  if (!Number.isInteger(row) || !Number.isInteger(col)) return;
+
   emit('queen-cell-touchmove', row, col);
-};
+}
+
+onMounted(() => {
+  touchTarget = boardElement.value;
+  touchTarget?.addEventListener('touchmove', handleBoardTouchMove, {passive: true});
+});
+
+onBeforeUnmount(() => {
+  touchTarget?.removeEventListener('touchmove', handleBoardTouchMove);
+  touchTarget = null;
+});
 </script>
 
 <template>
   <div class="queen-board-wrapper">
     <div class="queen-board"
+         ref="boardElement"
          :class="{'blur': gameStatus === GameStatuses.BOARD_GENERATED}"
          :style="{ gridTemplateColumns: `repeat(${gridSize}, 1fr)`, touchAction: 'none' }">
       <template v-for="(row, rowIndex) in props.queensPuzzle" :key="rowIndex">
@@ -61,7 +86,6 @@ const handleQueenCellTouchMove = (row: number, col: number) => {
             @queen-cell-pointerdown="handleQueenCellPointerDown"
             @queen-cell-pointerenter="handleQueenCellPointerEnter"
             @queen-cell-pointerup="handleQueenCellPointerUp"
-            @queen-cell-touchmove="handleQueenCellTouchMove"
         />
       </template>
     </div>

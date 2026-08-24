@@ -5,7 +5,7 @@ Release documents define bounded repository milestones. They do not imply that a
 | Release | Status | Objective |
 | --- | --- | --- |
 | [0.1 CrownGrid foundation](release-0.1-crowngrid-foundation/README.md) | Implemented in this package | Apply identity, favicon, documentation, support, release evidence, and focused AI workflows |
-| [0.2 Essential hardening](release-0.2-essential-hardening/README.md) | Planned | Correct only the highest-value state, optimizer, input, timer, and contact issues |
+| [0.2 Essential hardening](release-0.2-essential-hardening/README.md) | Implemented in this package | Correct only the highest-value state, optimizer, input, timer, and contact issues |
 
 ## Status meanings
 

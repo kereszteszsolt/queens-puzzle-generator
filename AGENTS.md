@@ -44,7 +44,7 @@ See `docs/architecture.md` and `docs/puzzle-generation.md`.
 
 Release 0.1 covers identity, README, favicon, documentation, release evidence, and focused AI-assisted engineering files. It does not authorize a puzzle-engine rewrite.
 
-Release 0.2 contains one planned hardening story, `CG-005`, limited to:
+Release 0.2 contains one implemented hardening story, `CG-005`, limited to:
 
 - consistent `CellState` initialization;
 - finite optimizer best/progress values;
@@ -89,7 +89,8 @@ Before claiming a code story is implemented, run the relevant checks:
 
 ```bash
 npm ci
+npm test
 npm run build
 ```
 
-Then complete the manual smoke path in `docs/testing.md`. The current baseline has no automated unit-test or lint script, so do not claim test coverage that does not exist. A story adding tests must name the runner, test scope, and exact command.
+Then complete the manual smoke path in `docs/testing.md`. The focused Vitest suite covers empty state initialization and optimizer finite-result behavior; the repository still has no lint script or broad automated browser suite, so do not claim coverage that does not exist.

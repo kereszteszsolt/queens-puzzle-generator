@@ -2,14 +2,15 @@
 
 ## Current automated checks
 
-The supplied baseline contains a TypeScript/Vite production build but no unit-test or lint script. The minimum repository check is therefore:
+Release 0.2 adds a focused Vitest suite for empty state initialization and optimizer finite-result behavior. The required repository checks are:
 
 ```bash
 npm ci
+npm test
 npm run build
 ```
 
-The GitHub Actions workflow runs this build on pushes and pull requests. Do not describe the repository as having automated unit coverage until a test runner and focused suites are added.
+The GitHub Actions workflow runs the tests before the production build on pushes and pull requests. This is focused coverage, not a broad application or browser test suite; the repository still has no lint script.
 
 ## Development smoke check
 
@@ -35,7 +36,7 @@ Open `http://localhost:5173/crown-grid/` and complete the checks below.
 - Generate at least one medium board, such as `8×8` with a target of `5` solutions.
 - Confirm progress values are readable and the generated board reports a finite solution count.
 - Confirm generation success shows **Start Game** and keeps the board non-interactive until selected.
-- Record the current generation-error behavior. Until CG-005 is implemented, the error path may lack a retry control and may leave an interval running; do not report this check as passing.
+- Confirm generation failure leaves the timer stopped and exposes **New Game** so the selector can be reopened for retry.
 
 ### Player interaction
 
@@ -43,7 +44,7 @@ Open `http://localhost:5173/crown-grid/` and complete the checks below.
 - Double click/tap places a queen and creates automatic marks.
 - Removing that queen removes only marks associated with its placement.
 - Dragging paints or erases marks without creating duplicate history entries for every traversed cell.
-- Undo, Clear Board, Reset Game, and Shuffle Colors behave as labelled. Check both Replay entry points separately; the win-modal timer discrepancy is a known CG-005 finding.
+- Undo, Clear Board, Reset Game, and Shuffle Colors behave as labelled. Check both Replay entry points separately; each must clear the board, reset the timer, and restart play.
 - Input is blocked before Start Game.
 
 ### Rule feedback
@@ -63,12 +64,18 @@ Open `http://localhost:5173/crown-grid/` and complete the checks below.
 
 ## Algorithm-focused evidence for future changes
 
-A future test suite should prioritize pure utilities:
+Future focused suites should continue expanding pure-utility coverage:
 
 - generated queen placement has one queen per row and column and no corner adjacency;
 - region fill produces `N` valid connected colors;
 - solution counting respects an early-stop limit;
-- optimizer results are finite when the initial board already meets the target or no improving iteration is accepted;
+- optimizer improvements, time-limit paths, and invalid input beyond the existing initial-target, zero-iteration, and finite-progress cases;
 - invalid typed-array lengths and invalid regions fail clearly.
 
-The planned Release 0.2 hardening story should add focused coverage for state initialization and optimizer best-state behavior without introducing a broad framework migration.
+## CG-005 verification record — 2026-08-24
+
+- Vitest `4.1.11`: 2 files, 5 tests passed with `npm test`.
+- Production build: Vite `7.3.6`, 92 modules transformed with `npm run build`.
+- Chromium `1.62.1` desktop and `390×844` scripted smoke completed the navigation, responsive, pointer/touch, timer, replay, win, error/retry, and contact paths above.
+- An `8×8` listener-instrumented run observed one board `touchmove` registration and one matching unmount removal; a `390×844` real touch sequence painted two traversed cells.
+- The browser harness was temporary and is not a checked-in end-to-end suite. This manual matrix remains the repeatable repository procedure.
