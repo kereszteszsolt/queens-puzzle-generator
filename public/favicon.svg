@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title id="title">CrownGrid</title>
+  <desc id="desc">A crown over a subtle square grid.</desc>
+  <rect width="64" height="64" rx="14" fill="#ff7f50"/>
+  <g fill="none" stroke="#fffaf0" stroke-width="1.5" opacity="0.28">
+    <path d="M16 8v48M32 8v48M48 8v48"/>
+    <path d="M8 16h48M8 32h48M8 48h48"/>
+  </g>
+  <path d="M13 23l10 8 9-16 9 16 10-8-5 23H18l-5-23z" fill="#fffaf0"/>
+  <path d="M18 50h28" fill="none" stroke="#fffaf0" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="13" cy="21" r="3" fill="#fffaf0"/>
+  <circle cx="32" cy="13" r="3" fill="#fffaf0"/>
+  <circle cx="51" cy="21" r="3" fill="#fffaf0"/>
+</svg>

@@ -4,7 +4,7 @@ import { fileURLToPath, URL } from 'url';
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/queens-puzzle-generator/',
+  base: '/crown-grid/',
   plugins: [vue()],
   resolve: {
     alias: {

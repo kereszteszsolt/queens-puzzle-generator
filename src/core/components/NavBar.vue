@@ -25,7 +25,7 @@ const activeSection = computed<SectionNav['id']>(() => {
 });
 
 const activeSectionLabel = computed(() => {
-  return sections.find(s => s.id === activeSection.value)?.label ?? 'Queens Game';
+  return sections.find(s => s.id === activeSection.value)?.label ?? 'CrownGrid';
 });
 
 const menuOpen = ref(false);
@@ -44,7 +44,7 @@ watch(
     <div class="navbar-container">
       <RouterLink class="navbar-brand" to="/" aria-label="Go to home">
         <div class="navbar-logo" aria-hidden="true">♛</div>
-        <div class="navbar-title">Queens Game & Generator</div>
+        <div class="navbar-title">CrownGrid</div>
       </RouterLink>
 
       <!-- Mobile only: show active section label centered -->

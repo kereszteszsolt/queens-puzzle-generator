@@ -16,7 +16,7 @@ const features = [
   {
     icon: '⚡',
     title: 'Smart Generation',
-    description: 'My advanced algorithm creates balanced, solvable puzzles in seconds — optimized for both speed and quality.'
+    description: 'The generator creates connected color regions and searches for a board that meets the selected solution target.'
   },
   {
     icon: '🎯',
@@ -37,9 +37,9 @@ const features = [
     <section class="hero">
       <div class="hero-content">
         <div class="hero-icon">♛</div>
-        <h1 class="hero-title">Queens Game & Generator</h1>
+        <h1 class="hero-title">CrownGrid</h1>
         <p class="hero-subtitle">
-          Experience endless challenges with my Queens puzzle generator. Thanks to my algorithm, you can generate billions of puzzle variations with a targeted number of solutions.
+          Generate and solve color-region Queens puzzles directly in your browser, with selectable board sizes and solution targets.
         </p>
         <button @click="goToGamePage" class="cta-button">
           <span>Start Playing</span>
@@ -79,7 +79,7 @@ const features = [
           <div class="rule-number">2</div>
           <div class="rule-content">
             <h3>Place the Queens</h3>
-            <p>Click on cells to place queens. Remember: no two queens can share the same row, column, or be diagonal neighbors.</p>
+            <p>Double-click or double-tap a cell to place a queen. No two queens may share a row, column, color region, or touch diagonally at a corner.</p>
           </div>
         </div>
         <div class="rule-item">
@@ -104,12 +104,12 @@ const features = [
       <div class="technical-content">
         <h2 class="section-title">Built with Performance in Mind</h2>
         <p class="technical-text">
-          My puzzle generator uses advanced algorithms to create solvable puzzles efficiently.
+          The puzzle generator uses browser-based algorithms to create solvable puzzles efficiently.
           Color regions are intelligently filled to ensure each puzzle has at least one valid solution to the originally generated queens — or multiple solutions if you prefer an easier challenge.
         </p>
         <p class="technical-text">
-          Small and medium boards generate in milliseconds. Larger boards (12×12 and above) may take
-          up to a few minutes depending on the constraints, but typically finish in under 90 seconds.
+          Small and medium boards often finish quickly. Larger boards (12×12 and above) may take
+          up to a few minutes depending on the selected solution target and browser performance.
         </p>
         <div class="tech-stack">
           <span class="tech-badge">Vue 3</span>
@@ -131,7 +131,7 @@ const features = [
         </p>
         <div class="open-source-links">
           <a
-              href="https://github.com/kereszteszsolt/queens-puzzle-generator"
+              href="https://github.com/kereszteszsolt/crown-grid"
               target="_blank"
               rel="noopener noreferrer"
               class="link-button link-button-primary"

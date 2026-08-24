@@ -56,12 +56,12 @@ const contactInfo = [
   {
     icon: webIcon,
     label: 'Website',
-    value: 'kereszteszsolt.com',
-    link: 'https://kereszteszsolt.com'
+    value: 'kereszteszsolt.hu',
+    link: 'https://kereszteszsolt.hu/'
   }
 ];
 
-const lastUpdated = 'January 23, 2026';
+const lastUpdated = 'August 24, 2026';
 
 onMounted(() => {
   const emailElement = document.querySelector('.contact-value');
@@ -92,12 +92,12 @@ onMounted(() => {
       <div class="info-card">
         <h2 class="section-title">
           <span class="title-icon">♛</span>
-          Queens Game & Generator
+          CrownGrid
         </h2>
         <p class="info-text">
-          This is an open-source web application that brings a fresh twist to the classic Queens puzzle
+          CrownGrid is an open-source web application that extends the color-region Queens puzzle
           by adding a generator, optimizer, and color shuffler. It features a smart puzzle generator
-          that creates unique, solvable challenges with a beautiful visual design.
+          that creates solvable challenges with a responsive visual design.
         </p>
         <p class="info-text">
           The project is hosted on <a href="https://pages.github.com/" target="_blank" rel="noopener noreferrer" class="inline-link">GitHub Pages</a>, making it freely
@@ -138,8 +138,8 @@ onMounted(() => {
           <div class="privacy-item">
             <div class="check-icon">✓</div>
             <div>
-              <strong>Local storage only:</strong> Game progress is saved locally in your
-              browser's memory and is never transmitted.
+              <strong>Browser memory only:</strong> The current game state stays in your
+              browser memory, is never transmitted, and resets when the page is reloaded.
             </div>
           </div>
         </div>
@@ -159,7 +159,7 @@ onMounted(() => {
           The author is not liable for any damages or losses resulting from its use.
         </p>
         <p class="terms-text">
-          This project is open source and distributed under the <a href="https://github.com/kereszteszsolt/queens-puzzle-generator?tab=Apache-2.0-1-ov-file" target="_blank" rel="noopener noreferrer" class="inline-link">Apache 2.0 License</a>. You are free
+          This project is open source and distributed under the <a href="https://github.com/kereszteszsolt/crown-grid?tab=Apache-2.0-1-ov-file" target="_blank" rel="noopener noreferrer" class="inline-link">Apache 2.0 License</a>. You are free
           to use, modify, and distribute the code in accordance with the license terms.
         </p>
       </div>
