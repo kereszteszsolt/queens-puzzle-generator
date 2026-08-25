@@ -58,35 +58,32 @@ export async function optimizeQueensPuzzle(
     const timeLimit = options.timeLimitMs ?? 180_000; // 3 minutes
     const iterationLimit = options.iterationLimit ?? 2_000_000;
 
-    let solutions: number = 0;
+    let solutions: number;
     let refillIterations = 0;
     const STRATEGIC_LIMIT = 1_000_000;
     const REFILL_LIMIT = 25;
     if (size > 12) {
-        solutions = STRATEGIC_LIMIT + 1;
-        while (solutions > STRATEGIC_LIMIT && refillIterations <= REFILL_LIMIT) {
-            refillIterations++;
-            solutions = countQueensSolutions(board, size, STRATEGIC_LIMIT + 1);
-            if (solutions > STRATEGIC_LIMIT) {
-                board = fillBoardWithColors(queens, size);
-            }  else {
-                break;
-            }
+        solutions = countQueensSolutions(board, size, STRATEGIC_LIMIT + 1);
+        while (solutions > STRATEGIC_LIMIT && refillIterations < REFILL_LIMIT) {
             cb({
                 iteration: 0,
                 solutionsCount: solutions,
                 elapsedTimeMs: Date.now() - startTime,
                 currentBoard: board,
                 timeLimitMs: timeLimit,
-                iterationLimit: iterationLimit,
+                iterationLimit,
                 successRate: 0,
-                targetMaxSolutions: targetMaxSolutions,
-                size: size,
-                bestSolutionsCount: Number.POSITIVE_INFINITY,
-                refillIterations: refillIterations
+                targetMaxSolutions,
+                size,
+                bestSolutionsCount: solutions,
+                refillIterations,
             });
-            // Yield to event loop periodically to allow UI updates
+            board = fillBoardWithColors(queens, size);
+            refillIterations++;
+
+            // Yield to the event loop so refill progress can render.
             await new Promise(resolve => setTimeout(resolve, 0));
+            solutions = countQueensSolutions(board, size, STRATEGIC_LIMIT + 1);
         }
     }
     solutions = countQueensSolutions(board, size);
@@ -97,10 +94,15 @@ export async function optimizeQueensPuzzle(
     let failedAttempts = 0;
     let successfulChanges = 0;
     let failedChanges = 0;
-    let bestSolutions = Number.POSITIVE_INFINITY;
+    let bestSolutions = solutions;
     let bestBoard: Int8Array = board.slice();
 
+    if (solutions <= targetMaxSolutions) {
+        return {board: bestBoard, solutions: bestSolutions, iterations, stoppedBy: "targetReached", size, elapsedTimeMs: Date.now() - startTime, iterationLimit, timeLimitMs: timeLimit, targetMaxSolutions, refillIterations};
+    }
+
     while (solutions > targetMaxSolutions && iterations < iterationLimit  && (Date.now() - startTime) < timeLimit) {
+        const totalChanges = successfulChanges + failedChanges;
         cb({
             iteration: iterations,
             solutionsCount: solutions,
@@ -108,7 +110,7 @@ export async function optimizeQueensPuzzle(
             currentBoard: board,
             timeLimitMs: timeLimit,
             iterationLimit: iterationLimit,
-            successRate: successfulChanges / (successfulChanges + failedChanges),
+            successRate: totalChanges === 0 ? 0 : successfulChanges / totalChanges,
             targetMaxSolutions: targetMaxSolutions,
             size: size,
             bestSolutionsCount: bestSolutions,

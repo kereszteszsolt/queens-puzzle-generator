@@ -1,10 +1,28 @@
 {
-  "name": "queens-puzzle-generator",
+  "name": "crown-grid",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
+  "description": "Browser-based Queens puzzle generator and game built with Vue, TypeScript, and Vite.",
   "type": "module",
+  "license": "Apache-2.0",
+  "author": {
+    "name": "Keresztes Zsolt",
+    "url": "https://kereszteszsolt.hu/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kereszteszsolt/crown-grid.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kereszteszsolt/crown-grid/issues"
+  },
+  "homepage": "https://kereszteszsolt.github.io/crown-grid/",
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
   "scripts": {
     "dev": "vite",
+    "test": "vitest run",
     "build": "vue-tsc -b && vite build",
     "preview": "vite preview",
     "predeploy": "npm run build",
@@ -21,6 +39,7 @@
     "gh-pages": "^6.3.0",
     "typescript": "~5.9.3",
     "vite": "^7.2.4",
+    "vitest": "^4.1.11",
     "vue-tsc": "^3.1.4"
   }
 }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, onMounted, onBeforeUnmount} from "vue";
+import {computed} from "vue";
 import {QUEEN, X_MARK} from "../constants";
 
 const props = defineProps<{
@@ -20,7 +20,6 @@ const emit = defineEmits<{
   (e: 'queen-cell-pointerdown', row: number, col: number): void;
   (e: 'queen-cell-pointerenter', row: number, col: number): void;
   (e: 'queen-cell-pointerup', row: number, col: number): void;
-  (e: 'queen-cell-touchmove', row: number, col: number): void;
 }>();
 
 const bgClass = computed(() => `bg-cell-${props.color.toString().padStart(2, '0')}`);
@@ -56,40 +55,6 @@ function handlePointerUp() {
   emit('queen-cell-pointerup', props.row, props.col);
 }
 
-function handleTouchMove(e: TouchEvent) {
-  const touch = e.touches[0];
-  if (!touch) return;
-
-  const el = document.elementFromPoint(touch.clientX, touch.clientY) as HTMLElement | null;
-  if (!el) return;
-
-  const cell = el.closest('.cell-content') as HTMLElement | null;
-  if (!cell) return;
-
-  const row = cell.dataset.row;
-  const col = cell.dataset.col;
-  if (row == null || col == null) return;
-
-  const r = Number(row);
-  const c = Number(col);
-  if (!Number.isFinite(r) || !Number.isFinite(c)) return;
-
-  emit('queen-cell-touchmove', r, c);
-}
-
-onMounted(() => {
-  const cellContent = document.querySelectorAll('.cell-content');
-  cellContent.forEach(cell => {
-    cell.addEventListener('touchmove', handleTouchMove as EventListener, { passive: true });
-  });
-});
-
-onBeforeUnmount(() => {
-  const cellContent = document.querySelectorAll('.cell-content');
-  cellContent.forEach(cell => {
-    cell.removeEventListener('touchmove', handleTouchMove as EventListener);
-  });
-});
 </script>
 
 <template>

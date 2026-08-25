@@ -23,7 +23,7 @@ const selectedSize = ref<number>(-2);
 <template>
   <div class="board-controls">
     <button
-        v-if="gameStatus === GameStatuses.WON || gameStatus === GameStatuses.PLAYING || gameStatus === GameStatuses.WELCOME || gameStatus === GameStatuses.BOARD_GENERATED"
+        v-if="gameStatus === GameStatuses.WON || gameStatus === GameStatuses.PLAYING || gameStatus === GameStatuses.WELCOME || gameStatus === GameStatuses.BOARD_GENERATED || gameStatus === GameStatuses.GENERATING_ERROR"
         class="btn-generate"
         @click="$emit('newGame', selectedSize)"
         title="Generate a new puzzle">

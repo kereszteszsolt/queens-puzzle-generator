@@ -44,7 +44,9 @@ const showChooseModal = ref(false);
 const showWinModal = ref(false);
 
 function handleResetGame() {
+  showWinModal.value = false;
   resetBoard();
+  gameStatus.value = GameStatuses.PLAYING;
   resetTimer();
   startTimer();
 }
@@ -55,9 +57,7 @@ function handleStartGame() {
 }
 
 function handleNewGame() {
-  if (gameStatus.value === GameStatuses.PLAYING) {
-    stopTimer();
-  }
+  stopTimer();
   showChooseModal.value = true;
 }
 
@@ -125,7 +125,7 @@ async function newQueensPuzzle(payload: { size: number; maxSolutions: number }):
     gameStatus.value = GameStatuses.GENERATING_ERROR;
     error.value = err as Error;
   } finally {
-    startTimer();
+    stopTimer();
   }
 }
 
@@ -150,17 +150,28 @@ watch(win, (val) => {
       winModalTimeout = undefined;
     }, 1500);
   } else {
-    // If somehow win becomes false, hide modal immediately
     showWinModal.value = false;
-    gameStatus.value = GameStatuses.PLAYING;
+    if (gameStatus.value === GameStatuses.WON) {
+      gameStatus.value = GameStatuses.PLAYING;
+      startTimer();
+    }
   }
 });
+
+function handleWinNewGame() {
+  showWinModal.value = false;
+  handleNewGame();
+}
 
 onMounted(async () => {
   window.addEventListener('pointerup', handleGlobalPointerUp)
 });
 onBeforeUnmount(() => {
   window.removeEventListener('pointerup', handleGlobalPointerUp)
+  stopTimer();
+  if (winModalTimeout !== undefined) {
+    clearTimeout(winModalTimeout);
+  }
 });
 
 </script>
@@ -228,8 +239,8 @@ onBeforeUnmount(() => {
         :show="showWinModal"
         :winning-time="timer"
         @close="showWinModal = false"
-        @replay="resetBoard"
-        @new-game="() => { showWinModal = false; showChooseModal = true }"
+        @replay="handleResetGame"
+        @new-game="handleWinNewGame"
     />
 
   </div>

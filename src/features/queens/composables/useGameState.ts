@@ -3,6 +3,16 @@ import {type Ref, ref} from "vue";
 import type {GameSnapshot} from "../models/GameSnapshot.ts";
 import {EMPTY} from "../constants";
 
+export function createEmptyBoardState(size: number, lastModified = Date.now()): CellState[][] {
+    return Array.from(
+        {length: size},
+        () => Array.from(
+            {length: size},
+            () => ({data: EMPTY, lastModified}),
+        ),
+    );
+}
+
 export function useGameState(sizeRef: Ref<number>) {
     let boardState = ref<CellState[][]>(getEmptyBoardState());
 
@@ -46,9 +56,7 @@ export function useGameState(sizeRef: Ref<number>) {
     }
 
     function getEmptyBoardState(): CellState[][] {
-        let now = Date.now();
-        const size = sizeRef.value;
-        return Array.from({length: size}, () => Array(size).fill({data: EMPTY, timestamp: now}));
+        return createEmptyBoardState(sizeRef.value);
     }
 
 
