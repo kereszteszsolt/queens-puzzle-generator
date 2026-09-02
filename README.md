@@ -43,7 +43,7 @@ See the [user guide](docs/user-guide.md) for the complete workflow and troublesh
 ## Architecture
 
 ```mermaid
-flowchart LR
+flowchart TD
     ROUTER[Vue Router] --> SCREENS[Home, Queens, About screens]
     SCREENS --> GAME[QueensScreen orchestration]
     GAME --> UI[Board and control components]
